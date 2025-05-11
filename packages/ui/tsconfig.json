@@ -1,0 +1,13 @@
+{
+    "extends": "../../tsconfig.json",   // Extend from the root config
+    "compilerOptions": {
+      "incremental": false,             // Override for this specific package
+      "composite": false,
+      "moduleResolution": "bundler",
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "resolveJsonModule": true
+    },
+    "include": ["src/**/*", "scripts"]
+  }
+  

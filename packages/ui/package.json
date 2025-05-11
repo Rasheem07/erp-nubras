@@ -1,0 +1,32 @@
+{
+  "name": "@nubras/ui",
+  "version": "1.0.0",
+  "main": "src/components/index.ts",
+  "module": "src/components/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/components/index.ts",
+      "require": "./src/components/index.ts"
+    },
+    "./*": "./src/components/*"
+  },
+  "files": [
+    "src/components"
+  ],
+  "scripts": {
+    "generate:exports": "node scripts/gen-exports.js"
+  },
+  "dependencies": {
+    "@nubras/utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^19",
+    "react-dom": "^19"
+  },
+  "devDependencies": {
+    "class-variance-authority": "^0.7.1",
+    "tailwindcss": "^3.0.0",
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.0"
+  }
+}

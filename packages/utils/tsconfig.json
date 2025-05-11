@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.json",   // Extend from the root config
+  "compilerOptions": {
+    "incremental": false,             // Override for this specific package
+    "composite": false
+  },
+  "include": ["src", "lib"]
+}

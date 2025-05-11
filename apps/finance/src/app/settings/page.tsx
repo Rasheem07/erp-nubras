@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Button } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FileText, Shield } from "lucide-react"
 
 export default function SettingsPage() {

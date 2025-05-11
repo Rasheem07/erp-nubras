@@ -1,23 +1,13 @@
 "use client"
 
-import { TableCell } from "@nubras/ui"
-
-import { TableBody } from "@nubras/ui"
-
-import { TableHead } from "@nubras/ui"
-
-import { TableRow } from "@nubras/ui"
-
-import { TableHeader } from "@nubras/ui"
-
-import { Table } from "@nubras/ui"
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 
 import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
-import { Button } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {Button} from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   Calendar,
   Download,

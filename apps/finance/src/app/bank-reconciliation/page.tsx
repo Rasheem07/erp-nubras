@@ -1,20 +1,53 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button, KanbanColumn, TreeNode } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
-import { Calendar, Filter, Plus, Search, Download, Eye, MoreHorizontal } from "lucide-react"
-import { BankReconciliationDrawer } from "@/components/bank-reconciliation-drawer"
-import { Badge } from "@nubras/ui"
-import { Checkbox } from "@nubras/ui"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@nubras/ui"
-import { TreeView } from "@nubras/ui"
-import { Kanban } from "@nubras/ui"
+import { useState } from "react";
+import Link from "next/link";
+import { KanbanColumn, TreeNode } from "@nubras/ui";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Calendar,
+  Filter,
+  Plus,
+  Search,
+  Download,
+  Eye,
+  MoreHorizontal,
+} from "lucide-react";
+import { BankReconciliationDrawer } from "@/components/bank-reconciliation-drawer";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { TreeView } from "@nubras/ui";
+import { Kanban } from "@nubras/ui";
+import { Button } from "@/components/ui/button";
 
 // Mock data for bank reconciliation
 const mockReconciliations = [
@@ -73,7 +106,7 @@ const mockReconciliations = [
     items: 3,
     matchedItems: 3,
   },
-]
+];
 
 // Tree view data
 const treeData = [
@@ -120,7 +153,7 @@ const treeData = [
       },
     ],
   },
-]
+];
 
 // Kanban data
 const kanbanData = {
@@ -173,92 +206,115 @@ const kanbanData = {
       ],
     },
   ],
-}
+};
 
 export default function BankReconciliationPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("all")
-  const [showFilters, setShowFilters] = useState(false)
-  const [selectedReconciliation, setSelectedReconciliation] = useState<string | null>(null)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [viewMode, setViewMode] = useState("table")
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedReconciliation, setSelectedReconciliation] = useState<
+    string | null
+  >(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [viewMode, setViewMode] = useState("table");
 
   // Filter reconciliations based on search query and status
-  const filteredReconciliations = mockReconciliations.filter((reconciliation) => {
-    const matchesSearch = reconciliation.accountName.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus =
-      selectedStatus === "all" ||
-      (selectedStatus === "completed" && reconciliation.status === "Completed") ||
-      (selectedStatus === "in-progress" && reconciliation.status === "In Progress")
-    return matchesSearch && matchesStatus
-  })
+  const filteredReconciliations = mockReconciliations.filter(
+    (reconciliation) => {
+      const matchesSearch = reconciliation.accountName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        selectedStatus === "all" ||
+        (selectedStatus === "completed" &&
+          reconciliation.status === "Completed") ||
+        (selectedStatus === "in-progress" &&
+          reconciliation.status === "In Progress");
+      return matchesSearch && matchesStatus;
+    }
+  );
 
   const handleViewReconciliation = (id: string) => {
     if (id === "new") {
-      window.location.href = "/bank-reconciliation/create"
-      return
+      window.location.href = "/bank-reconciliation/create";
+      return;
     }
-    setSelectedReconciliation(id)
-    setIsDrawerOpen(true)
-  }
+    setSelectedReconciliation(id);
+    setIsDrawerOpen(true);
+  };
 
   const treeNodes: TreeNode[] = [
-  {
-    id:   "checking",
-    name: "Checking Accounts",
-    children: [
-      {
-        id:   "1",
-        name: "Main Checking Account",
-        meta: { info: "In Progress • $100.00 difference" },
-      },
-      {
-        id:   "4",
-        name: "Payroll Account",
-        meta: { info: "Completed • $0.00 difference" },
-      },
-    ],
-  },
-  {
-    id:   "savings",
-    name: "Savings Accounts",
-    children: [
-      { id:"2", name:"Savings Account",    meta:{ info:"Completed • $0.00 difference" } },
-      { id:"5", name:"Tax Reserve Account", meta:{ info:"Completed • $0.00 difference" } },
-    ],
-  },
-  {
-    id:   "credit",
-    name: "Credit Accounts",
-    children: [
-      { id:"3", name:"Business Credit Card", meta:{ info:"In Progress • $200.00 difference" } },
-    ],
-  },
-]
+    {
+      id: "checking",
+      name: "Checking Accounts",
+      children: [
+        {
+          id: "1",
+          name: "Main Checking Account",
+          meta: { info: "In Progress • $100.00 difference" },
+        },
+        {
+          id: "4",
+          name: "Payroll Account",
+          meta: { info: "Completed • $0.00 difference" },
+        },
+      ],
+    },
+    {
+      id: "savings",
+      name: "Savings Accounts",
+      children: [
+        {
+          id: "2",
+          name: "Savings Account",
+          meta: { info: "Completed • $0.00 difference" },
+        },
+        {
+          id: "5",
+          name: "Tax Reserve Account",
+          meta: { info: "Completed • $0.00 difference" },
+        },
+      ],
+    },
+    {
+      id: "credit",
+      name: "Credit Accounts",
+      children: [
+        {
+          id: "3",
+          name: "Business Credit Card",
+          meta: { info: "In Progress • $200.00 difference" },
+        },
+      ],
+    },
+  ];
 
-const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
-  id:    col.id,
-  title: col.title,
-  items: col.cards.map((c) => ({
-    id:      c.id,
-    content: (
-      <div>
-        <div className="font-medium">{c.title}</div>
-        <div className="text-sm text-muted-foreground">{c.description}</div>
-        <div className="text-xs mt-1">{c.tags.join(", ")}</div>
-      </div>
-    ),
-    meta: { tags: c.tags },
-  })),
-}))
-
+  const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
+    id: col.id,
+    title: col.title,
+    items: col.cards.map((c) => ({
+      id: c.id,
+      content: (
+        <div>
+          <div className="font-medium">{c.title}</div>
+          <div className="text-sm text-muted-foreground">{c.description}</div>
+          <div className="text-xs mt-1">{c.tags.join(", ")}</div>
+        </div>
+      ),
+      meta: { tags: c.tags },
+    })),
+  }));
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bank Reconciliation</h1>
-          <p className="text-muted-foreground">Reconcile your bank accounts with your accounting records</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Bank Reconciliation
+          </h1>
+          <p className="text-muted-foreground">
+            Reconcile your bank accounts with your accounting records
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/bank-reconciliation/new">
@@ -298,7 +354,11 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Button variant="outline" className="flex items-center gap-2" onClick={() => setShowFilters(!showFilters)}>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => setShowFilters(!showFilters)}
+          >
             <Filter className="h-4 w-4" />
             Filters
             <Badge className="ml-1">{selectedStatus !== "all" ? 1 : 0}</Badge>
@@ -327,7 +387,10 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
             <div className="flex flex-wrap gap-4">
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-medium">Status</label>
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <Select
+                  value={selectedStatus}
+                  onValueChange={setSelectedStatus}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -403,9 +466,15 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
                         <TableCell>
                           <Checkbox />
                         </TableCell>
-                        <TableCell className="font-medium">{reconciliation.accountName}</TableCell>
-                        <TableCell>${reconciliation.bankBalance.toFixed(2)}</TableCell>
-                        <TableCell>${reconciliation.bookBalance.toFixed(2)}</TableCell>
+                        <TableCell className="font-medium">
+                          {reconciliation.accountName}
+                        </TableCell>
+                        <TableCell>
+                          ${reconciliation.bankBalance.toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          ${reconciliation.bookBalance.toFixed(2)}
+                        </TableCell>
                         <TableCell
                           className={
                             reconciliation.difference !== 0
@@ -415,13 +484,21 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
                         >
                           ${Math.abs(reconciliation.difference).toFixed(2)}
                           {reconciliation.difference !== 0 && (
-                            <span>{reconciliation.difference < 0 ? " short" : " over"}</span>
+                            <span>
+                              {reconciliation.difference < 0
+                                ? " short"
+                                : " over"}
+                            </span>
                           )}
                         </TableCell>
                         <TableCell>{reconciliation.lastReconciled}</TableCell>
                         <TableCell>
                           <Badge
-                            variant={reconciliation.status === "Completed" ? "outline" : "secondary"}
+                            variant={
+                              reconciliation.status === "Completed"
+                                ? "outline"
+                                : "secondary"
+                            }
                             className={
                               reconciliation.status === "Completed"
                                 ? "bg-green-100 text-green-800 hover:bg-green-100"
@@ -439,7 +516,9 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleViewReconciliation(reconciliation.id)}
+                              onClick={() =>
+                                handleViewReconciliation(reconciliation.id)
+                              }
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
@@ -451,8 +530,12 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Download Statement</DropdownMenuItem>
-                                <DropdownMenuItem>Mark as Complete</DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  Download Statement
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  Mark as Complete
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
@@ -477,7 +560,11 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
           )}
 
           {viewMode === "kanban" && (
-            <Kanban columns={kanbanColumns} onDragEnd={() => {}} onItemClick={(cardId: any) => handleViewReconciliation(cardId)} />
+            <Kanban
+              columns={kanbanColumns}
+              onDragEnd={() => {}}
+              onItemClick={(cardId: any) => handleViewReconciliation(cardId)}
+            />
           )}
         </TabsContent>
 
@@ -485,7 +572,9 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
           <Card>
             <CardHeader>
               <CardTitle>Checking Accounts</CardTitle>
-              <CardDescription>View and reconcile your checking accounts</CardDescription>
+              <CardDescription>
+                View and reconcile your checking accounts
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Similar content as "all" tab but filtered for checking accounts */}
@@ -498,7 +587,9 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
           <Card>
             <CardHeader>
               <CardTitle>Savings Accounts</CardTitle>
-              <CardDescription>View and reconcile your savings accounts</CardDescription>
+              <CardDescription>
+                View and reconcile your savings accounts
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Similar content as "all" tab but filtered for savings accounts */}
@@ -511,7 +602,9 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
           <Card>
             <CardHeader>
               <CardTitle>Credit Card Accounts</CardTitle>
-              <CardDescription>View and reconcile your credit card accounts</CardDescription>
+              <CardDescription>
+                View and reconcile your credit card accounts
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Similar content as "all" tab but filtered for credit card accounts */}
@@ -529,5 +622,5 @@ const kanbanColumns: KanbanColumn[] = kanbanData.columns.map((col) => ({
         />
       )}
     </div>
-  )
+  );
 }

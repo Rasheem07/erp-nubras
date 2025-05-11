@@ -4,9 +4,9 @@ export const dynamic = "force-dynamic"
 
 import { useState } from "react"
 import { FilterIcon, PlusIcon, SearchIcon, SlidersHorizontalIcon } from "lucide-react"
-import { Button } from "@nubras/ui"
-import { Card, CardContent } from "@nubras/ui"
-import { Input } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,10 +15,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@nubras/ui"
-import { Badge } from "@nubras/ui"
+} from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
 import { AccountReconciliationDrawer } from "@/components/account-reconciliation-drawer"
-import { Progress } from "@nubras/ui"
+import { Progress } from "@/components/ui/progress"
 
 // Sample reconciliation data
 const reconciliations = [

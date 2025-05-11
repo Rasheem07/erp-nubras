@@ -12,9 +12,10 @@ import {
   FileText,
   FolderTree,
 } from "lucide-react";
-import { Button, KanbanColumn } from "@nubras/ui";
-import { Card, CardContent } from "@nubras/ui";
-import { Input } from "@nubras/ui";
+import {Button} from "@/components/ui/button"
+import {  KanbanColumn } from "@nubras/ui";
+import { Card, CardContent } from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,8 +24,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@nubras/ui";
-import { Badge } from "@nubras/ui";
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { Kanban } from "@nubras/ui";
 import { ExpenseDrawer } from "@/components/expense-drawer";
 import { format } from "date-fns";

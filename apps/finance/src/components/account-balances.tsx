@@ -1,6 +1,6 @@
 "use client"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 const accounts = [
   {

@@ -2,16 +2,16 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Label } from "@nubras/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
-import { Separator } from "@nubras/ui"
-import { Checkbox } from "@nubras/ui"
-import { Textarea } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {Input} from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeftIcon, PlusIcon, TrashIcon } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function CustomReportPage() {
   const router = useRouter()

@@ -3,10 +3,10 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { CalendarIcon, DownloadIcon, FilterIcon, PlusIcon, PrinterIcon, SearchIcon, ShareIcon, Eye } from "lucide-react"
-import { Button } from "@nubras/ui"
-import { Card, CardContent } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Tabs, TabsList, TabsTrigger } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import {Input} from "@/components/ui/input"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
+import { Badge } from "@/components/ui/badge"
 import { ReportDrawer } from "@/components/report-drawer"
 import { format } from "date-fns"
 

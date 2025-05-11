@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Avatar, AvatarFallback, AvatarImage } from "@nubras/ui"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Calendar, CheckCircle2, Clock, FileText } from "lucide-react"
 
 // Initial data for the Kanban board
@@ -110,7 +110,7 @@ const initialColumns: KanbanColumn[] = [
             <div className="font-medium">Update accounting policies</div>
             <div className="text-xs text-muted-foreground">Review and update company accounting policies</div>
             <div className="flex items-center justify-between">
-              <Badge variant="success" className="flex items-center gap-1">
+              <Badge variant="default" className="flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" /> Completed
               </Badge>
               <Avatar className="h-6 w-6">
@@ -130,7 +130,7 @@ const initialColumns: KanbanColumn[] = [
               Conduct Q2 budget planning meeting with department heads
             </div>
             <div className="flex items-center justify-between">
-              <Badge variant="success" className="flex items-center gap-1">
+              <Badge variant="default" className="flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3" /> Completed
               </Badge>
               <Avatar className="h-6 w-6">

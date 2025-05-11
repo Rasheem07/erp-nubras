@@ -1,21 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Button, KanbanColumn, TreeNode } from "@nubras/ui";
-import { Input } from "@nubras/ui";
+import { Button } from "@/components/ui/button";
+import {  KanbanColumn, TreeNode } from "@nubras/ui";
+import {Input} from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@nubras/ui";
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@nubras/ui";
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -23,15 +24,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@nubras/ui";
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@nubras/ui";
-import { Badge } from "@nubras/ui";
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Kanban } from "@nubras/ui";
 import { TreeView } from "@nubras/ui";
 import { TaxDrawer } from "@/components/tax-drawer";

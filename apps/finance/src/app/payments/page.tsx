@@ -2,21 +2,21 @@
 
 import { useState } from "react";
 import { Button, KanbanColumn, TreeNode } from "@nubras/ui";
-import { Input } from "@nubras/ui";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@nubras/ui";
-import { Tabs, TabsList, TabsTrigger } from "@nubras/ui";
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@nubras/ui";
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -24,15 +24,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@nubras/ui";
+} from "@/components/ui/table";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@nubras/ui";
-import { Badge } from "@nubras/ui";
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Kanban } from "@nubras/ui";
 import { TreeView } from "@nubras/ui";
 import { PaymentDrawer } from "@/components/payment-drawer";
@@ -54,6 +54,7 @@ import {
   Banknote,
   Building,
 } from "lucide-react";
+import Link from "next/link";
 
 // Mock data for payments
 const mockPayments = [
@@ -411,15 +412,12 @@ export default function PaymentsPage() {
     <div className="container mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Payments</h1>
-        <Button
-          onClick={() => {
-            setSelectedPayment(null);
-            setDrawerOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Payment
-        </Button>
+        <Link href="/payments/create">
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            New Payment
+          </Button>
+        </Link>
       </div>
 
       <div className="flex flex-col gap-6">

@@ -2,14 +2,14 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { JournalEntryDrawer } from "@/components/journal-entry-drawer"
 import { Plus, Search, Eye, Pencil, List, Network, Trello, ArrowUpDown } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TreeView, type TreeNode } from "@nubras/ui"
 import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
 import { formatCurrency } from "@nubras/utils"
@@ -461,7 +461,7 @@ export default function JournalEntriesPage() {
                           {formatCurrency(entry.creditTotal)}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          <Badge variant={entry.status === "Posted" ? "success" : "secondary"}>{entry.status}</Badge>
+                          <Badge variant={entry.status === "Posted" ? "default" : "secondary"}>{entry.status}</Badge>
                         </TableCell>
                         <TableCell className="text-right whitespace-nowrap">
                           <div className="flex justify-end gap-2">
@@ -496,7 +496,7 @@ export default function JournalEntriesPage() {
                       <Badge
                         variant={
                           selectedTreeNode.meta.entry.status === "Posted"
-                            ? "success"
+                            ? "default"
                             : selectedTreeNode.meta.entry.status === "Rejected"
                               ? "destructive"
                               : "secondary"

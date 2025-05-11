@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@nubras/ui"
-import { Button } from "@nubras/ui"
-import { Separator } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import {Button} from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DownloadIcon, FileTextIcon, PrinterIcon, ShareIcon, UserIcon } from "lucide-react"
 import { format } from "date-fns"
 

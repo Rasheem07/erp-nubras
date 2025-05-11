@@ -4,7 +4,7 @@ import { FinanceOverviewChart } from "@/components/overview"
 import { RecentTransactions } from "@/components/recent-transactions"
 import { FinancialRatios } from "@/components/financial-ratios"
 import { QuickActions } from "@/components/quick-actions"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function FinanceDashboard() {
   return (

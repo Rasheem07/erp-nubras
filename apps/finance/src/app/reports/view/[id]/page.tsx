@@ -1,6 +1,6 @@
 "use client"
 import { useParams, useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
 import { ReportViewer } from "@/components/report-viewer"
 import { ArrowLeft } from "lucide-react"
 

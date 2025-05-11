@@ -2,13 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Search, Eye, Pencil, List, Network, Trello, ArrowUpDown, Check, X } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TreeView, type TreeNode } from "@nubras/ui"
 import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
 import { formatCurrency } from "@nubras/utils"
@@ -504,7 +504,7 @@ export default function ExpenseClaimsPage() {
                           <Badge
                             variant={
                               claim.status === "Approved"
-                                ? "success"
+                                ? "default"
                                 : claim.status === "Rejected"
                                   ? "destructive"
                                   : "secondary"
@@ -517,7 +517,7 @@ export default function ExpenseClaimsPage() {
                           <Badge
                             variant={
                               claim.paymentStatus === "Paid"
-                                ? "success"
+                                ? "default"
                                 : claim.paymentStatus === "Pending"
                                   ? "secondary"
                                   : "outline"
@@ -571,7 +571,7 @@ export default function ExpenseClaimsPage() {
                       <Badge
                         variant={
                           selectedTreeNode.meta.claim.status === "Approved"
-                            ? "success"
+                            ? "default"
                             : selectedTreeNode.meta.claim.status === "Rejected"
                               ? "destructive"
                               : "secondary"
@@ -602,7 +602,7 @@ export default function ExpenseClaimsPage() {
                         <Badge
                           variant={
                             selectedTreeNode.meta.claim.paymentStatus === "Paid"
-                              ? "success"
+                              ? "default"
                               : selectedTreeNode.meta.claim.paymentStatus === "Pending"
                                 ? "secondary"
                                 : "outline"

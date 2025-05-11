@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -14,9 +14,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@nubras/ui"
-import { Label } from "@nubras/ui"
-import { Tabs, TabsList, TabsTrigger } from "@nubras/ui"
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   ArrowUpDown,
   Calendar,
@@ -253,7 +253,7 @@ export default function ExchangeRatesPage() {
                       </TableCell>
                       <TableCell>
                         {currency.isBaseCurrency ? (
-                          <Badge variant="success" className="gap-1">
+                          <Badge variant="default" className="gap-1">
                             <Star className="h-3 w-3" />
                             Base
                           </Badge>

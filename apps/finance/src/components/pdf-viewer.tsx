@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Button } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 
 interface PDFViewerProps {

@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { TreeView, type TreeNode } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   CreditCard,
   Building,

@@ -4,14 +4,14 @@ import React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { InvoiceDrawer } from "@/components/invoice-drawer"
 import { Plus, Search, Eye, Pencil, List, Network, Trello, Printer } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TreeView, type TreeNode } from "@nubras/ui"
 import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
 
@@ -478,7 +478,7 @@ export default function InvoicesPage() {
                           <Badge
                             variant={
                               invoice.status === "Paid"
-                                ? "success"
+                                ? "default"
                                 : invoice.status === "Overdue"
                                   ? "destructive"
                                   : "secondary"
@@ -524,7 +524,7 @@ export default function InvoicesPage() {
                       <Badge
                         variant={
                           selectedTreeNode.meta.invoice.status === "Paid"
-                            ? "success"
+                            ? "default"
                             : selectedTreeNode.meta.invoice.status === "Overdue"
                               ? "destructive"
                               : "secondary"

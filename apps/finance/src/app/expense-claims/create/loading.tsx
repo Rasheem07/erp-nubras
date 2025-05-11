@@ -1,4 +1,4 @@
-import { Skeleton } from "@nubras/ui"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Loading() {
   return (

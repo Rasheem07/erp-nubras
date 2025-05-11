@@ -4,14 +4,14 @@ export const dynamic = "force-dynamic"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AccountDrawer } from "@/components/account-drawer"
 import { Plus, Search, Eye, Pencil, List, Network, Trello, FileCheck } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TreeView, type TreeNode } from "@nubras/ui"
 import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
 
@@ -514,7 +514,7 @@ export default function ChartOfAccountsPage() {
                           })}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          <Badge variant={account.status === "Active" ? "success" : "secondary"}>
+                          <Badge variant={account.status === "Active" ? "default" : "secondary"}>
                             {account.status}
                           </Badge>
                         </TableCell>

@@ -1,7 +1,7 @@
 "use client"
 
-import { Skeleton } from "@nubras/ui"
-import { Card, CardContent, CardHeader } from "@nubras/ui"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent, CardHeader } from "@/components/ui/card"
 
 export default function PaymentsLoading() {
   return (

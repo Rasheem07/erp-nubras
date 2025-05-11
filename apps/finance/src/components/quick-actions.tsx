@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
 import { FileText, Plus, Receipt, CreditCard, ArrowLeftRight, FileBarChart } from "lucide-react"
 
 const actions = [

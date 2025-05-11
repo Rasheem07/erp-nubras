@@ -2,17 +2,17 @@
 
 import React from "react"
 import { useState } from "react"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Label } from "@nubras/ui"
-import { Textarea } from "@nubras/ui"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@nubras/ui"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
-import { Separator } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Card, CardContent, CardHeader, CardTitle } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Save, X, Printer, Download, Plus, Trash, Check, DollarSign } from "lucide-react"
 import { formatCurrency } from "@nubras/utils"
 
@@ -166,7 +166,7 @@ export function ExpenseClaimDrawer({ open, onClose, claim, mode: initialMode }: 
                       <Badge
                         variant={
                           claim.status === "Approved"
-                            ? "success"
+                            ? "default"
                             : claim.status === "Rejected"
                               ? "destructive"
                               : "secondary"
@@ -198,7 +198,7 @@ export function ExpenseClaimDrawer({ open, onClose, claim, mode: initialMode }: 
                         <Badge
                           variant={
                             claim.paymentStatus === "Paid"
-                              ? "success"
+                              ? "default"
                               : claim.paymentStatus === "Pending"
                                 ? "secondary"
                                 : "outline"

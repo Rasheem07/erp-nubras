@@ -3,17 +3,17 @@
 import React from "react"
 
 import { useState } from "react"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Label } from "@nubras/ui"
-import { Textarea } from "@nubras/ui"
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@nubras/ui"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
-import { Switch } from "@nubras/ui"
-import { Separator } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, Save, X } from "lucide-react"
 
 interface AccountDrawerProps {
@@ -112,7 +112,7 @@ export function AccountDrawer({ open, onClose, account, mode: initialMode }: Acc
                       </div>
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">Status</p>
-                        <Badge variant={account.status === "Active" ? "success" : "secondary"}>{account.status}</Badge>
+                        <Badge variant={account.status === "Active" ? "default" : "secondary"}>{account.status}</Badge>
                       </div>
                     </div>
 

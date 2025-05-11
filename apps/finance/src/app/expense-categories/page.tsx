@@ -3,11 +3,11 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -15,14 +15,14 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@nubras/ui"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@nubras/ui"
-import { Label } from "@nubras/ui"
-import { Switch } from "@nubras/ui"
-import { Textarea } from "@nubras/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
+} from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Plus, Search, Edit, MoreHorizontal, Trash2 } from "lucide-react"
-import { financeService, type ExpenseCategory } from "@/lib/finance-service"
+import { financeService, type ExpenseCategory } from "@/lib/finance/finance-service"
 
 export default function ExpenseCategoriesPage() {
   const [categories, setCategories] = useState<ExpenseCategory[]>([])
@@ -245,7 +245,7 @@ export default function ExpenseCategoriesPage() {
                       </TableCell>
                       <TableCell>{category.defaultGLAccount || "-"}</TableCell>
                       <TableCell>
-                        <Badge variant={category.isActive ? "success" : "secondary"}>
+                        <Badge variant={category.isActive ? "default" : "secondary"}>
                           {category.isActive ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>

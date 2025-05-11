@@ -4,19 +4,19 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Label } from "@nubras/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Checkbox } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {Input} from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 import { AlertCircle, Check, Download, FileSpreadsheet, FileText, HelpCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@nubras/ui"
-import { Progress } from "@nubras/ui"
-import { financeService } from "@/lib/finance-service"
+import { Progress } from "@/components/ui/progress"
+import { financeService } from "@/lib/finance/finance-service"
 
 export default function BankStatementImportPage() {
   const router = useRouter()
@@ -603,7 +603,7 @@ export default function BankStatementImportPage() {
                             <TableCell>{transaction.reference}</TableCell>
                             <TableCell>{transaction.matchedWith}</TableCell>
                             <TableCell>
-                              <Badge variant={transaction.confidence > 90 ? "success" : "secondary"}>
+                              <Badge variant={transaction.confidence > 90 ? "default" : "secondary"}>
                                 {transaction.confidence}%
                               </Badge>
                             </TableCell>

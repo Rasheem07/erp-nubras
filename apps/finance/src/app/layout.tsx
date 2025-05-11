@@ -1,6 +1,6 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { Sidebar, SidebarContent, SidebarProvider } from "@nubras/ui";
+import { Sidebar, SidebarContent, SidebarProvider } from "@/components/ui/sidebar";
 import { FinanceSidebar } from "@/components/sidebar";
 import { FinanceHeader } from "@/components/header";
 import { ThemeProvider } from "next-themes";

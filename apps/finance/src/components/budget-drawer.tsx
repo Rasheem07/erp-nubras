@@ -1,8 +1,8 @@
 "use client"
 
 import type React from "react"
-import { Button } from "@nubras/ui"
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet"
 
 interface BudgetDrawerProps {
   open: boolean

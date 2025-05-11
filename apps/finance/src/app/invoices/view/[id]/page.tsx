@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
 import { ArrowLeft, Printer } from "lucide-react"
 // import { InvoiceDownloadButton } from "@/components/invoice-download-button"
-import type { Invoice } from "@nubras/utils/types.js"
+import type { Invoice } from "@nubras/utils/dist/types"
 
 // Sample data for invoices - in a real app, you would fetch this from your API
 const invoicesData: Invoice[] = [

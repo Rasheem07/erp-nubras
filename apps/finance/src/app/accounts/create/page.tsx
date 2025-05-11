@@ -1,21 +1,20 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-
-
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Label } from "@nubras/ui"
-import { Textarea } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
-import { Switch } from "@nubras/ui"
-import { Separator } from "@nubras/ui"
-import { ArrowLeft, DollarSign, Save } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Separator } from "@/components/ui/separator"
+import { ArrowLeft, DollarSign, Save, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { toast } from "@nubras/ui"
 
 export default function CreateAccountPage() {
   const router = useRouter()
@@ -30,9 +29,35 @@ export default function CreateAccountPage() {
     created: new Date().toISOString().split("T")[0],
   })
 
+  // Bank account specific fields
+  const [isBankAccount, setIsBankAccount] = useState(false)
+  const [bankDetails, setBankDetails] = useState({
+    bankName: "",
+    accountNumber: "",
+    branch: "",
+    swiftCode: "",
+    iban: "",
+    accountType: "checking",
+    createBankAccount: true,
+  })
+
+  useEffect(() => {
+    // Check if this is a bank account based on subtype
+    setIsBankAccount(formData.subtype === "Bank Account")
+  }, [formData.subtype])
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleBankDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setBankDetails((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleBankSelectChange = (name: string, value: string) => {
+    setBankDetails((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleSelectChange = (name: string, value: string) => {
@@ -43,11 +68,38 @@ export default function CreateAccountPage() {
     setFormData((prev) => ({ ...prev, [name]: checked ? "Active" : "Inactive" }))
   }
 
+  const handleBankSwitchChange = (name: string, checked: boolean) => {
+    setBankDetails((prev) => ({ ...prev, [name]: checked }))
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validate bank details if this is a bank account
+    if (isBankAccount && bankDetails.createBankAccount) {
+      if (!bankDetails.bankName || !bankDetails.accountNumber) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required bank details",
+          variant: "destructive",
+        })
+        return
+      }
+    }
+
     // Here you would typically save the data to your backend
     console.log("Form submitted:", formData)
-    router.push("/accounts")
+    console.log("Bank details:", bankDetails)
+
+    toast({
+      title: "Success",
+      description:
+        isBankAccount && bankDetails.createBankAccount
+          ? "Account and bank account created successfully"
+          : "Account created successfully",
+    })
+
+    router.push("/finance/accounts")
   }
 
   return (
@@ -137,6 +189,7 @@ export default function CreateAccountPage() {
                   <SelectContent>
                     <SelectItem value="Current Asset">Current Asset</SelectItem>
                     <SelectItem value="Fixed Asset">Fixed Asset</SelectItem>
+                    <SelectItem value="Bank Account">Bank Account</SelectItem>
                     <SelectItem value="Current Liability">Current Liability</SelectItem>
                     <SelectItem value="Long-term Liability">Long-term Liability</SelectItem>
                     <SelectItem value="Equity">Equity</SelectItem>
@@ -178,6 +231,122 @@ export default function CreateAccountPage() {
                 rows={3}
               />
             </div>
+
+            {isBankAccount && (
+              <>
+                <Separator className="my-6" />
+
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-base font-medium">Create Bank Account</h3>
+                      <p className="text-sm text-muted-foreground">
+                        This will create a corresponding bank account in your banking module
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="createBankAccount"
+                        checked={bankDetails.createBankAccount}
+                        onCheckedChange={(checked) => handleBankSwitchChange("createBankAccount", checked)}
+                      />
+                      <span>{bankDetails.createBankAccount ? "Yes" : "No"}</span>
+                    </div>
+                  </div>
+
+                  {bankDetails.createBankAccount && (
+                    <div className="p-4 bg-muted rounded-md space-y-6">
+                      <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bank Account Required</AlertTitle>
+                        <AlertDescription>
+                          Since this is a bank account type, you must provide bank details.
+                        </AlertDescription>
+                      </Alert>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="bankName">Bank Name</Label>
+                          <Input
+                            id="bankName"
+                            name="bankName"
+                            value={bankDetails.bankName}
+                            onChange={handleBankDetailsChange}
+                            placeholder="e.g., Emirates NBD"
+                            required={isBankAccount && bankDetails.createBankAccount}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="accountNumber">Account Number</Label>
+                          <Input
+                            id="accountNumber"
+                            name="accountNumber"
+                            value={bankDetails.accountNumber}
+                            onChange={handleBankDetailsChange}
+                            placeholder="e.g., 1234567890"
+                            required={isBankAccount && bankDetails.createBankAccount}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="branch">Branch</Label>
+                          <Input
+                            id="branch"
+                            name="branch"
+                            value={bankDetails.branch}
+                            onChange={handleBankDetailsChange}
+                            placeholder="e.g., Dubai Main Branch"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="accountType">Account Type</Label>
+                          <Select
+                            value={bankDetails.accountType}
+                            onValueChange={(value) => handleBankSelectChange("accountType", value)}
+                          >
+                            <SelectTrigger id="accountType">
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="checking">Checking</SelectItem>
+                              <SelectItem value="savings">Savings</SelectItem>
+                              <SelectItem value="fixed-deposit">Fixed Deposit</SelectItem>
+                              <SelectItem value="current">Current</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                          <Label htmlFor="swiftCode">SWIFT/BIC Code</Label>
+                          <Input
+                            id="swiftCode"
+                            name="swiftCode"
+                            value={bankDetails.swiftCode}
+                            onChange={handleBankDetailsChange}
+                            placeholder="e.g., EBILAEAD"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="iban">IBAN</Label>
+                          <Input
+                            id="iban"
+                            name="iban"
+                            value={bankDetails.iban}
+                            onChange={handleBankDetailsChange}
+                            placeholder="e.g., AE123456789012345678901"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
 
             <Separator />
 

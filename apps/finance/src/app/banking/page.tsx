@@ -3,11 +3,11 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Plus,
   Search,
@@ -22,12 +22,12 @@ import {
   RefreshCw,
   FileCheck,
 } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@nubras/ui"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { TreeView, type TreeNode } from "@nubras/ui"
 import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
 import { formatCurrency } from "@nubras/utils"
 import { BankAccountDrawer } from "@/components/bank-account-drawer"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Sample data for bank accounts
 const bankAccounts = [
@@ -566,7 +566,7 @@ export default function BankingPage() {
                               {formatCurrency(account.balance)}
                             </TableCell>
                             <TableCell className="whitespace-nowrap">
-                              <Badge variant={account.status === "Active" ? "success" : "secondary"}>
+                              <Badge variant={account.status === "Active" ? "default" : "secondary"}>
                                 {account.status}
                               </Badge>
                             </TableCell>
@@ -600,7 +600,7 @@ export default function BankingPage() {
                       <div className="space-y-4 border rounded-lg p-6">
                         <div className="flex justify-between items-center">
                           <h3 className="text-xl font-semibold">{selectedTreeNode.meta.account.accountName}</h3>
-                          <Badge variant={selectedTreeNode.meta.account.status === "Active" ? "success" : "secondary"}>
+                          <Badge variant={selectedTreeNode.meta.account.status === "active" ? "default" : "secondary"}>
                             {selectedTreeNode.meta.account.status}
                           </Badge>
                         </div>
@@ -766,7 +766,7 @@ export default function BankingPage() {
                             <Badge
                               variant={
                                 transaction.type === "Deposit"
-                                  ? "success"
+                                  ? "default"
                                   : transaction.type === "Withdrawal"
                                     ? "destructive"
                                     : "secondary"

@@ -1,7 +1,7 @@
 "use client"
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@nubras/ui"
-import { Badge } from "@nubras/ui"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
 
 const transactions = [
   {
@@ -65,7 +65,7 @@ export function RecentTransactions() {
               </TableCell>
               <TableCell className="whitespace-nowrap">
                 <Badge
-                  variant={transaction.type === "income" ? "success" : "destructive"}
+                  variant={transaction.type === "income" ? "default" : "destructive"}
                   className="px-3 py-1 text-sm"
                 >
                   {transaction.type === "income" ? "Income" : "Expense"}

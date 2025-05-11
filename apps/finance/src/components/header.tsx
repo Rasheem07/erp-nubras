@@ -1,7 +1,7 @@
 "use client"
 import { Bell, Search } from "lucide-react"
-import { Button } from "@nubras/ui"
-import { Input } from "@nubras/ui"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
 import { ModeToggle } from "./mode-toggle"
 
 export function FinanceHeader() {

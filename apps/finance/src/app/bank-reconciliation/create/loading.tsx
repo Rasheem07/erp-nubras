@@ -1,6 +1,6 @@
 "use client"
 
-import { Skeleton } from "@nubras/ui"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Card, CardContent, CardFooter, CardHeader } from "@nubras/ui"
 
 export default function Loading() {

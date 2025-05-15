@@ -35,13 +35,9 @@ const accounts = [
 export default function CreateJournalEntryPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
-    id:
-      "JE-" +
-      Math.floor(Math.random() * 1000)
-        .toString()
-        .padStart(3, "0"),
     date: new Date().toISOString().split("T")[0],
-    reference: "",
+    ref: "",
+    refType: "",
     description: "",
     entries: [
       { account: "", debit: 0, credit: 0 },
@@ -124,18 +120,6 @@ export default function CreateJournalEntryPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label htmlFor="id">Journal Entry Number</Label>
-                <Input
-                  id="id"
-                  name="id"
-                  value={formData.id}
-                  onChange={handleInputChange}
-                  placeholder="e.g., JE-001"
-                  required
-                  readOnly
-                />
-              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="date">Date</Label>
@@ -143,13 +127,25 @@ export default function CreateJournalEntryPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="reference">Reference</Label>
+                <Label htmlFor="ref">Reference no</Label>
                 <Input
-                  id="reference"
-                  name="reference"
-                  value={formData.reference}
+                  id="ref"
+                  name="ref"
+                  value={formData.ref}
                   onChange={handleInputChange}
                   placeholder="e.g., INV-001, PO-123"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="refType">Reference type</Label>
+                <Input
+                  id="refType"
+                  name="refType"
+                  value={formData.refType}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Invoice, Expense etc"
+                  required
                 />
               </div>
 

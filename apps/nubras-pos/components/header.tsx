@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Bell, Menu, Search, User } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useState } from "react";
+import { Bell, Menu, Search, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,29 +11,21 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import Sidebar from "./sidebar"
-import { CommandPalette } from "./command-palette"
-import Link from "next/link"
-import { ModeToggle } from "./mode-toggle"
+} from "@/components/ui/dropdown-menu";
+import Sidebar from "./sidebar";
+import { CommandPalette } from "./command-palette";
+import Link from "next/link";
+import { ModeToggle } from "./mode-toggle";
+import SidebarCloseButton from "./sidebarCloseButton";
+import SidebarToggleButton from "./sidebarCloseButton";
 
 export default function Header() {
-  const [open, setOpen] = useState(false)
-  const [commandOpen, setCommandOpen] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button variant="outline" size="icon" className="md:hidden">
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle Menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-72 p-0">
-          <Sidebar />
-        </SheetContent>
-      </Sheet>
+      <SidebarToggleButton />
       <div className="w-full flex-1">
         <Button
           variant="outline"
@@ -77,5 +69,5 @@ export default function Header() {
         </DropdownMenuContent>
       </DropdownMenu>
     </header>
-  )
+  );
 }

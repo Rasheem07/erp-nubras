@@ -17,6 +17,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useSidebar } from "@/contexts/sidebar"
 
 export default function Sidebar() {
   const pathname = usePathname()
@@ -102,8 +103,10 @@ export default function Sidebar() {
     },
   ]
 
+  const {isOpen} = useSidebar()
+
   return (
-    <div className="hidden md:flex h-full w-64 flex-col border-r bg-background">
+    <div className={`${isOpen && "md:flex"} hidden h-full w-64 flex-col border-r bg-background`}>
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <Scissors className="h-6 w-6" />

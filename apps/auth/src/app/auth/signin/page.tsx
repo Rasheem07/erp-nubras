@@ -1,47 +1,100 @@
-// app/auth/signin/page.tsx
 "use client";
 
-import { getCsrfToken } from "next-auth/react";
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-export default async function SignIn() {
-  const [csrfToken, setCsrfToken] = useState<string | null>(null);
+interface SignInPayload {
+  email: string;
+  password: string;
+}
+interface SignInResponse {
+  message: string;
+}
 
-  
-  useEffect(() => {
-    getCsrfToken().then((t) => setCsrfToken(t ?? null));
-  }, []);
+export default function SignInPage() {
+  const router = useRouter();
+  const [form, setForm] = useState<SignInPayload>({ email: "", password: "" });
+  const params = useSearchParams();
+  const redirectURL = params.get("redirectURL") || "";
+  const mutation: UseMutationResult<SignInResponse, Error, SignInPayload> =
+    useMutation({
+      mutationFn: async (payload) => {
+        const res = await fetch(`http://localhost:5005/api/v1/auth/signin`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || "Failed to send OTP");
+        return data;
+      },
+      onSuccess: () => {
+        // set a 10-minute expiry timestamp
+        const expireAt = Date.now() + 10 * 60 * 1000;
+        localStorage.setItem("otpExpireAt", expireAt.toString());
+        // navigate with email query
+        toast.success("OTP sent! Check your email.");
+        router.push(
+          `/auth/verify?email=${encodeURIComponent(form.email)}&redirectURL=${encodeURIComponent(redirectURL)}`
+        );
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate(form);
+  };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow">
-        <h1 className="text-2xl font-semibold text-center text-gray-900">
-          Sign in to Nubras ERP
-        </h1>
-        <form
-          method="post"
-          action="/api/auth/callback/email"
-          className="space-y-4"
-        >
-          <input name="csrfToken" type="hidden" defaultValue={csrfToken!} />
-          <label className="block">
-            <span className="text-gray-700">Email address</span>
-            <input
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+      <Card className="w-full max-w-lg lg:px-8 lg:py-12 border border-gray-200 shadow-lg">
+        <CardHeader className="mb-6">
+          <CardTitle className="text-3xl font-bold text-center">
+            Welcome Back
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <Input
+              id="email"
               type="email"
-              name="email"
+              placeholder="Email address"
+              className="h-12 text-lg"
               required
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-brand-200 placeholder:text-gray-400"
-              placeholder="you@example.com"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
             />
-          </label>
-          <button
-            type="submit"
-            className="w-full py-2 font-medium text-white bg-gray-600 rounded-md hover:bg-gray-700"
-          >
-            Send Magic Link
-          </button>
-        </form>
-      </div>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Password"
+              className="h-12 text-lg"
+              required
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+            <Button
+              type="submit"
+              className="w-full py-4 text-lg font-semibold"
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending ? "Sending…" : "Send OTP"}
+            </Button>
+            <p className="text-center text-sm text-gray-600">
+              This code will expire in <strong>10 minutes</strong>
+            </p>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "sales_schema"."sales_order_items" ADD COLUMN "type" "sales_schema"."product_type" DEFAULT 'ready-made' NOT NULL;

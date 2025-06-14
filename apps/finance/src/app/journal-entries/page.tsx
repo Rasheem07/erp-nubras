@@ -1,18 +1,50 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { JournalEntryDrawer } from "@/components/journal-entry-drawer"
-import { Plus, Search, Eye, Pencil, List, Network, Trello, ArrowUpDown } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TreeView, type TreeNode } from "@nubras/ui"
-import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
-import { formatCurrency } from "@nubras/utils"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { JournalEntryDrawer } from "@/components/journal-entry-drawer";
+import {
+  Plus,
+  Search,
+  Eye,
+  Pencil,
+  List,
+  Network,
+  Trello,
+  ArrowUpDown,
+} from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TreeView, type TreeNode } from "@/components/ui/tree-view";
+import {
+  Kanban,
+  type KanbanColumn,
+  type KanbanItem,
+} from "@/components/ui/kanban";
+import { formatCurrency } from "@/lib/utils";
 
 // Sample data for journal entries
 const journalEntries = [
@@ -141,31 +173,33 @@ const journalEntries = [
     ],
     notes: "Draft journal entry for sales invoice #003 to Sharjah Hotels Ltd",
   },
-]
+];
 
 // Tree view data
 const generateTreeData = () => {
-  const months = ["January", "February", "March", "April", "May", "June"]
-  const statusGroups = ["Posted", "Draft", "Rejected"]
+  const months = ["January", "February", "March", "April", "May", "June"];
+  const statusGroups = ["Posted", "Draft", "Rejected"];
 
-  const byMonth: { [key: string]: any[] } = {}
-  const byStatus: { [key: string]: any[] } = {}
-  const byReference: { [key: string]: any[] } = {}
+  const byMonth: { [key: string]: any[] } = {};
+  const byStatus: { [key: string]: any[] } = {};
+  const byReference: { [key: string]: any[] } = {};
 
   // Group journal entries by month, status, and reference
   journalEntries.forEach((entry) => {
-    const month = new Date(entry.date).toLocaleString("default", { month: "long" })
+    const month = new Date(entry.date).toLocaleString("default", {
+      month: "long",
+    });
 
-    if (!byMonth[month]) byMonth[month] = []
-    byMonth[month].push(entry)
+    if (!byMonth[month]) byMonth[month] = [];
+    byMonth[month].push(entry);
 
-    if (!byStatus[entry.status]) byStatus[entry.status] = []
-    byStatus[entry.status].push(entry)
+    if (!byStatus[entry.status]) byStatus[entry.status] = [];
+    byStatus[entry.status].push(entry);
 
-    const refType = entry.reference.split("-")[0]
-    if (!byReference[refType]) byReference[refType] = []
-    byReference[refType].push(entry)
-  })
+    const refType = entry.reference.split("-")[0];
+    if (!byReference[refType]) byReference[refType] = [];
+    byReference[refType].push(entry);
+  });
 
   const treeData: TreeNode[] = [
     {
@@ -207,10 +241,10 @@ const generateTreeData = () => {
         })),
       })),
     },
-  ]
+  ];
 
-  return treeData
-}
+  return treeData;
+};
 
 // Kanban data
 const generateKanbanData = () => {
@@ -225,10 +259,14 @@ const generateKanbanData = () => {
           content: (
             <div className="space-y-2">
               <div className="font-medium">{entry.id}</div>
-              <div className="text-xs text-muted-foreground">{entry.description}</div>
+              <div className="text-xs text-muted-foreground">
+                {entry.description}
+              </div>
               <div className="flex items-center justify-between">
                 <Badge variant="outline">{entry.date}</Badge>
-                <span className="font-semibold">{formatCurrency(entry.debitTotal)}</span>
+                <span className="font-semibold">
+                  {formatCurrency(entry.debitTotal)}
+                </span>
               </div>
             </div>
           ),
@@ -245,10 +283,14 @@ const generateKanbanData = () => {
           content: (
             <div className="space-y-2">
               <div className="font-medium">{entry.id}</div>
-              <div className="text-xs text-muted-foreground">{entry.description}</div>
+              <div className="text-xs text-muted-foreground">
+                {entry.description}
+              </div>
               <div className="flex items-center justify-between">
                 <Badge variant="outline">{entry.date}</Badge>
-                <span className="font-semibold">{formatCurrency(entry.debitTotal)}</span>
+                <span className="font-semibold">
+                  {formatCurrency(entry.debitTotal)}
+                </span>
               </div>
             </div>
           ),
@@ -265,91 +307,103 @@ const generateKanbanData = () => {
           content: (
             <div className="space-y-2">
               <div className="font-medium">{entry.id}</div>
-              <div className="text-xs text-muted-foreground">{entry.description}</div>
+              <div className="text-xs text-muted-foreground">
+                {entry.description}
+              </div>
               <div className="flex items-center justify-between">
                 <Badge variant="outline">{entry.date}</Badge>
-                <span className="font-semibold">{formatCurrency(entry.debitTotal)}</span>
+                <span className="font-semibold">
+                  {formatCurrency(entry.debitTotal)}
+                </span>
               </div>
             </div>
           ),
           meta: entry,
         })),
     },
-  ]
+  ];
 
-  return columns
-}
+  return columns;
+};
 
 export default function JournalEntriesPage() {
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [selectedEntry, setSelectedEntry] = useState<any>(null)
-  const [mode, setMode] = useState<"view" | "edit">("view")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("All")
-  const [viewMode, setViewMode] = useState<"table" | "tree" | "kanban">("table")
-  const [selectedTreeNode, setSelectedTreeNode] = useState<TreeNode | null>(null)
-  const [kanbanColumns, setKanbanColumns] = useState<KanbanColumn[]>(generateKanbanData())
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<any>(null);
+  const [mode, setMode] = useState<"view" | "edit">("view");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [viewMode, setViewMode] = useState<"table" | "tree" | "kanban">(
+    "table"
+  );
+  const [selectedTreeNode, setSelectedTreeNode] = useState<TreeNode | null>(
+    null
+  );
+  const [kanbanColumns, setKanbanColumns] =
+    useState<KanbanColumn[]>(generateKanbanData());
 
-  const router = useRouter()
+  const router = useRouter();
 
   const filteredEntries = journalEntries.filter((entry) => {
     const matchesSearch =
       entry.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       entry.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      entry.reference.toLowerCase().includes(searchTerm.toLowerCase())
+      entry.reference.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === "All" || entry.status === statusFilter
+    const matchesStatus =
+      statusFilter === "All" || entry.status === statusFilter;
 
-    return matchesSearch && matchesStatus
-  })
+    return matchesSearch && matchesStatus;
+  });
 
   const handleView = (entry: any) => {
-    setSelectedEntry(entry)
-    setMode("view")
-    setIsDrawerOpen(true)
-  }
+    setSelectedEntry(entry);
+    setMode("view");
+    setIsDrawerOpen(true);
+  };
 
   const handleEdit = (entry: any) => {
-    setSelectedEntry(entry)
-    setMode("edit")
-    setIsDrawerOpen(true)
-  }
+    setSelectedEntry(entry);
+    setMode("edit");
+    setIsDrawerOpen(true);
+  };
 
   const handleCreate = () => {
-    router.push("/journal-entries/create")
-  }
+    router.push("/finance/journal-entries/create");
+  };
 
   const handleTreeNodeSelect = (node: TreeNode) => {
-    setSelectedTreeNode(node)
+    setSelectedTreeNode(node);
     // If the node has a meta field with entry data, open the drawer
     if (node.meta?.entry) {
-      setSelectedEntry(node.meta.entry)
-      setMode("view")
-      setIsDrawerOpen(true)
+      setSelectedEntry(node.meta.entry);
+      setMode("view");
+      setIsDrawerOpen(true);
     }
-  }
+  };
 
   const handleKanbanDragEnd = (result: any) => {
-    if (!result.destination) return
+    if (!result.destination) return;
 
     // In a real app, this would update the entry status based on the column it was moved to
-    console.log("Drag ended:", result)
-  }
+    console.log("Drag ended:", result);
+  };
 
   const handleKanbanItemClick = (item: KanbanItem) => {
     if (item.meta) {
-      setSelectedEntry(item.meta)
-      setMode("view")
-      setIsDrawerOpen(true)
+      setSelectedEntry(item.meta);
+      setMode("view");
+      setIsDrawerOpen(true);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">Journal Entries</h2>
-          <p className="text-muted-foreground">Manage your general ledger journal entries</p>
+          <p className="text-muted-foreground">
+            Manage your general ledger journal entries
+          </p>
         </div>
         <div className="flex gap-2">
           <Button onClick={handleCreate} size="lg" className="gap-2">
@@ -363,7 +417,9 @@ export default function JournalEntriesPage() {
         <CardHeader className="flex flex-col sm:flex-row justify-between sm:items-center space-y-2 sm:space-y-0">
           <div>
             <CardTitle>All Journal Entries</CardTitle>
-            <CardDescription>View and manage your general ledger journal entries</CardDescription>
+            <CardDescription>
+              View and manage your general ledger journal entries
+            </CardDescription>
           </div>
           <div className="flex gap-2">
             <Button
@@ -439,21 +495,41 @@ export default function JournalEntriesPage() {
                           <ArrowUpDown className="ml-1 h-3 w-3" />
                         </div>
                       </TableHead>
-                      <TableHead className="whitespace-nowrap">Reference</TableHead>
-                      <TableHead className="whitespace-nowrap">Description</TableHead>
-                      <TableHead className="text-right whitespace-nowrap">Debit Total</TableHead>
-                      <TableHead className="text-right whitespace-nowrap">Credit Total</TableHead>
-                      <TableHead className="whitespace-nowrap">Status</TableHead>
-                      <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
+                      <TableHead className="whitespace-nowrap">
+                        Reference
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap">
+                        Description
+                      </TableHead>
+                      <TableHead className="text-right whitespace-nowrap">
+                        Debit Total
+                      </TableHead>
+                      <TableHead className="text-right whitespace-nowrap">
+                        Credit Total
+                      </TableHead>
+                      <TableHead className="whitespace-nowrap">
+                        Status
+                      </TableHead>
+                      <TableHead className="text-right whitespace-nowrap">
+                        Actions
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredEntries.map((entry) => (
                       <TableRow key={entry.id}>
-                        <TableCell className="font-medium whitespace-nowrap">{entry.id}</TableCell>
-                        <TableCell className="whitespace-nowrap">{entry.date}</TableCell>
-                        <TableCell className="whitespace-nowrap">{entry.reference}</TableCell>
-                        <TableCell className="whitespace-nowrap">{entry.description}</TableCell>
+                        <TableCell className="font-medium whitespace-nowrap">
+                          {entry.id}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {entry.date}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {entry.reference}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">
+                          {entry.description}
+                        </TableCell>
                         <TableCell className="text-right whitespace-nowrap">
                           {formatCurrency(entry.debitTotal)}
                         </TableCell>
@@ -461,15 +537,31 @@ export default function JournalEntriesPage() {
                           {formatCurrency(entry.creditTotal)}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">
-                          <Badge variant={entry.status === "Posted" ? "default" : "secondary"}>{entry.status}</Badge>
+                          <Badge
+                            variant={
+                              entry.status === "Posted"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
+                            {entry.status}
+                          </Badge>
                         </TableCell>
                         <TableCell className="text-right whitespace-nowrap">
                           <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => handleView(entry)}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleView(entry)}
+                            >
                               <Eye className="h-4 w-4" />
                               <span className="sr-only">View</span>
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => handleEdit(entry)}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleEdit(entry)}
+                            >
                               <Pencil className="h-4 w-4" />
                               <span className="sr-only">Edit</span>
                             </Button>
@@ -486,13 +578,19 @@ export default function JournalEntriesPage() {
           {viewMode === "tree" && (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div className="md:col-span-1">
-                <TreeView data={generateTreeData()} onNodeSelect={handleTreeNodeSelect} defaultExpanded={false} />
+                <TreeView
+                  data={generateTreeData()}
+                  onNodeSelect={handleTreeNodeSelect}
+                  defaultExpanded={false}
+                />
               </div>
               <div className="md:col-span-2">
                 {selectedTreeNode?.meta?.entry ? (
                   <div className="space-y-4 border rounded-lg p-6">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-semibold">Journal Entry #{selectedTreeNode.meta.entry.id}</h3>
+                      <h3 className="text-xl font-semibold">
+                        Journal Entry #{selectedTreeNode.meta.entry.id}
+                      </h3>
                       <Badge
                         variant={
                           selectedTreeNode.meta.entry.status === "Posted"
@@ -508,31 +606,55 @@ export default function JournalEntriesPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Date</p>
-                        <p className="text-lg">{selectedTreeNode.meta.entry.date}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Date
+                        </p>
+                        <p className="text-lg">
+                          {selectedTreeNode.meta.entry.date}
+                        </p>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-muted-foreground">Reference</p>
-                        <p className="text-lg">{selectedTreeNode.meta.entry.reference}</p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Reference
+                        </p>
+                        <p className="text-lg">
+                          {selectedTreeNode.meta.entry.reference}
+                        </p>
                       </div>
                     </div>
 
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Description</p>
-                      <p className="text-lg">{selectedTreeNode.meta.entry.description}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Description
+                      </p>
+                      <p className="text-lg">
+                        {selectedTreeNode.meta.entry.description}
+                      </p>
                     </div>
 
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Amount</p>
-                      <p className="text-2xl font-bold">{formatCurrency(selectedTreeNode.meta.entry.debitTotal)}</p>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Amount
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {formatCurrency(selectedTreeNode.meta.entry.debitTotal)}
+                      </p>
                     </div>
 
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleView(selectedTreeNode.meta!.entry)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleView(selectedTreeNode.meta!.entry)}
+                      >
                         <Eye className="mr-2 h-4 w-4" />
                         View Details
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(selectedTreeNode.meta!.entry)}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(selectedTreeNode.meta!.entry)}
+                      >
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                       </Button>
@@ -549,9 +671,14 @@ export default function JournalEntriesPage() {
 
           {viewMode === "kanban" && (
             <div className="mt-4">
-              <Kanban columns={kanbanColumns} onDragEnd={handleKanbanDragEnd} onItemClick={handleKanbanItemClick} />
+              <Kanban
+                columns={kanbanColumns}
+                onDragEnd={handleKanbanDragEnd}
+                onItemClick={handleKanbanItemClick}
+              />
               <div className="mt-4 text-center text-sm text-muted-foreground">
-                Click on any card to view journal entry details. Drag cards between columns to change status.
+                Click on any card to view journal entry details. Drag cards
+                between columns to change status.
               </div>
             </div>
           )}
@@ -565,5 +692,5 @@ export default function JournalEntriesPage() {
         mode={mode}
       />
     </div>
-  )
+  );
 }

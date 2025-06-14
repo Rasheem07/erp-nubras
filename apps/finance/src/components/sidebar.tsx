@@ -18,18 +18,14 @@ import {
   Settings,
   Home,
 } from "lucide-react"
-import { cn } from "@nubras/utils"
+import { cn } from "@/lib/utils"
 import { useEffect } from "react"
 
 export function FinanceSidebar() {
   const pathname = usePathname()
 
-  useEffect(() => {
-    console.log("finance sidebar is being rendered on the page...")
-  })
-
   return (
-    <div className="flex h-full flex-col overflow-y-auto">
+    <div className={`flex h-full flex-col overflow-y-auto`}>
       <div className="flex items-center gap-2 px-6 py-4 border-b">
         <CreditCard className="h-6 w-6" />
         <span className="text-lg font-semibold">Finance Module</span>

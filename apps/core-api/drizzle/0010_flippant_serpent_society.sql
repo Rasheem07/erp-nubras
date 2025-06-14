@@ -1,0 +1,1 @@
+CREATE INDEX "date_idx" ON "sales_schema"."sales_orders" USING btree ("created_at");

@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -31,216 +33,134 @@ import {
   Eye,
   Trash2,
   AlertTriangle,
+  Building,
 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
+// Types based on the provided DTOs and schema
 interface InventoryItem {
-  id: string
+  id: number
   name: string
   sku: string
   category: string
-  type: "fabric" | "ready-made" | "accessory" | "packaging"
-  inStock: number
+  uom: string
+  description?: string
+  cost: string // Using string as per DTO
+  stock: number
   minStock: number
-  costPrice: number
-  sellingPrice: number
-  supplier: string
-  location: string
-  lastRestocked: string
-  status: "in-stock" | "low-stock" | "out-of-stock"
-  image?: string
+  reorderPoint: number
+  barcode?: string
+  supplierId?: number
+  weight?: string
+  notes?: string
+  createdAt: string
+  updatedAt: string
 }
 
-type SortField = "name" | "sku" | "inStock" | "costPrice" | "sellingPrice" | "lastRestocked"
+interface Supplier {
+  id: number
+  name: string
+  phone: string
+  location?: string
+  email?: string
+}
+
+type SortField = "name" | "sku" | "stock" | "cost" | "updatedAt"
 type SortDirection = "asc" | "desc"
 
 export default function InventoryPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
-  const [selectedType, setSelectedType] = useState<string | null>(null)
+  const [selectedUom, setSelectedUom] = useState<string | null>(null)
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null)
   const [sortField, setSortField] = useState<SortField>("name")
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
+  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([])
+  const [categories, setCategories] = useState<string[]>([])
+  const [uoms, setUoms] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [deleteItemId, setDeleteItemId] = useState<number | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  // Sample inventory data
-  const inventoryItems: InventoryItem[] = [
-    {
-      id: "INV-001",
-      name: "White Linen Fabric",
-      sku: "FAB-LIN-WHT-001",
-      category: "Fabrics",
-      type: "fabric",
-      inStock: 150,
-      minStock: 50,
-      costPrice: 30,
-      sellingPrice: 60,
-      supplier: "Dubai Textile Co.",
-      location: "Shelf A1",
-      lastRestocked: "2024-04-15",
-      status: "in-stock",
-      image: "/placeholder.svg?key=6k1n3",
-    },
-    {
-      id: "INV-002",
-      name: "Black Cotton Fabric",
-      sku: "FAB-COT-BLK-001",
-      category: "Fabrics",
-      type: "fabric",
-      inStock: 120,
-      minStock: 40,
-      costPrice: 25,
-      sellingPrice: 45,
-      supplier: "Dubai Textile Co.",
-      location: "Shelf A2",
-      lastRestocked: "2024-04-10",
-      status: "in-stock",
-      image: "/placeholder.svg?key=xezuv",
-    },
-    {
-      id: "INV-003",
-      name: "Premium Silk Fabric",
-      sku: "FAB-SLK-PRM-001",
-      category: "Fabrics",
-      type: "fabric",
-      inStock: 30,
-      minStock: 20,
-      costPrice: 70,
-      sellingPrice: 120,
-      supplier: "Luxury Textiles LLC",
-      location: "Shelf A3",
-      lastRestocked: "2024-04-05",
-      status: "in-stock",
-      image: "/placeholder.svg?key=8toom",
-    },
-    {
-      id: "INV-004",
-      name: "Kandura (Premium)",
-      sku: "KAN-PREM-001",
-      category: "Ready-made",
-      type: "ready-made",
-      inStock: 25,
-      minStock: 10,
-      costPrice: 250,
-      sellingPrice: 450,
-      supplier: "Al Noor Garments",
-      location: "Section B1",
-      lastRestocked: "2024-04-20",
-      status: "in-stock",
-      image: "/placeholder.svg?key=ng1v2",
-    },
-    {
-      id: "INV-005",
-      name: "Kandura (Standard)",
-      sku: "KAN-STD-001",
-      category: "Ready-made",
-      type: "ready-made",
-      inStock: 8,
-      minStock: 15,
-      costPrice: 180,
-      sellingPrice: 350,
-      supplier: "Al Noor Garments",
-      location: "Section B2",
-      lastRestocked: "2024-04-20",
-      status: "low-stock",
-      image: "/placeholder.svg?key=ng1v2",
-    },
-    {
-      id: "INV-006",
-      name: "Abaya (Premium)",
-      sku: "ABA-PREM-001",
-      category: "Ready-made",
-      type: "ready-made",
-      inStock: 18,
-      minStock: 8,
-      costPrice: 300,
-      sellingPrice: 550,
-      supplier: "Elegant Abayas LLC",
-      location: "Section B3",
-      lastRestocked: "2024-04-15",
-      status: "in-stock",
-      image: "/placeholder.svg?key=zgibz",
-    },
-    {
-      id: "INV-007",
-      name: "Abaya (Standard)",
-      sku: "ABA-STD-001",
-      category: "Ready-made",
-      type: "ready-made",
-      inStock: 0,
-      minStock: 12,
-      costPrice: 180,
-      sellingPrice: 350,
-      supplier: "Elegant Abayas LLC",
-      location: "Section B4",
-      lastRestocked: "2024-03-15",
-      status: "out-of-stock",
-      image: "/placeholder.svg?key=zgibz",
-    },
-    {
-      id: "INV-008",
-      name: "Buttons (Gold)",
-      sku: "ACC-BTN-GLD-001",
-      category: "Accessories",
-      type: "accessory",
-      inStock: 500,
-      minStock: 200,
-      costPrice: 0.5,
-      sellingPrice: 2,
-      supplier: "Fashion Accessories Trading",
-      location: "Drawer C1",
-      lastRestocked: "2024-04-01",
-      status: "in-stock",
-      image: "/placeholder.svg?key=bnvr4",
-    },
-    {
-      id: "INV-009",
-      name: "Zippers (Black)",
-      sku: "ACC-ZIP-BLK-001",
-      category: "Accessories",
-      type: "accessory",
-      inStock: 150,
-      minStock: 100,
-      costPrice: 1,
-      sellingPrice: 3,
-      supplier: "Fashion Accessories Trading",
-      location: "Drawer C2",
-      lastRestocked: "2024-04-01",
-      status: "in-stock",
-      image: "/placeholder.svg?key=zp9r2",
-    },
-    {
-      id: "INV-010",
-      name: "Premium Gift Box",
-      sku: "PKG-BOX-PRM-001",
-      category: "Packaging",
-      type: "packaging",
-      inStock: 5,
-      minStock: 20,
-      costPrice: 10,
-      sellingPrice: 0,
-      supplier: "Packaging Solutions",
-      location: "Storage D1",
-      lastRestocked: "2024-03-10",
-      status: "low-stock",
-      image: "/placeholder.svg?key=bx7r9",
-    },
-  ]
+  // Fetch inventory items from API
+  useEffect(() => {
+    const fetchInventory = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch("http://localhost:5005/api/v1/inventory")
+        if (!response.ok) {
+          throw new Error("Failed to fetch inventory")
+        }
+        const data = await response.json()
+        setInventoryItems(data)
 
-  // Get unique categories, types, and statuses for filters
-  const categories = Array.from(new Set(inventoryItems.map((item) => item.category)))
-  const types = Array.from(new Set(inventoryItems.map((item) => item.type)))
-  const statuses = Array.from(new Set(inventoryItems.map((item) => item.status)))
+        // Extract unique categories and UOMs
+        const uniqueCategories = Array.from(new Set(data.map((item: InventoryItem) => item.category)))
+        const uniqueUoms = Array.from(new Set(data.map((item: InventoryItem) => item.uom)))
+
+        setCategories(uniqueCategories as string[])
+        setUoms(uniqueUoms as string[])
+      } catch (error) {
+        console.error("Error fetching inventory:", error)
+        toast.error("Failed to load inventory items")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchInventory()
+  }, [])
+
+  // Handle item deletion
+  const handleDeleteItem = async () => {
+    if (!deleteItemId) return
+
+    try {
+      const response = await fetch(`http://localhost:5005/api/v1/inventory/${deleteItemId}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete item")
+      }
+
+      const data = await response.json()
+      toast.success(data.message || "Item deleted successfully")
+
+      // Remove the deleted item from the state
+      setInventoryItems(inventoryItems.filter((item) => item.id !== deleteItemId))
+    } catch (error) {
+      console.error("Error deleting item:", error)
+      toast.error("Failed to delete item")
+    } finally {
+      setDeleteItemId(null)
+      setIsDeleteDialogOpen(false)
+    }
+  }
 
   // Filter and sort inventory items
   const filteredItems = inventoryItems
     .filter(
       (item) =>
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.supplier.toLowerCase().includes(searchQuery.toLowerCase()),
+        item.sku.toLowerCase().includes(searchQuery.toLowerCase()),
     )
     .filter((item) => !selectedCategory || item.category === selectedCategory)
-    .filter((item) => !selectedType || item.type === selectedType)
-    .filter((item) => !selectedStatus || item.status === selectedStatus)
+    .filter((item) => !selectedUom || item.uom === selectedUom)
+    .filter(
+      (item) => !selectedStatus || (item.stock <= item.reorderPoint ? "low-stock" : "in-stock") === selectedStatus,
+    )
     .sort((a, b) => {
       let comparison = 0
 
@@ -248,14 +168,12 @@ export default function InventoryPage() {
         comparison = a.name.localeCompare(b.name)
       } else if (sortField === "sku") {
         comparison = a.sku.localeCompare(b.sku)
-      } else if (sortField === "inStock") {
-        comparison = a.inStock - b.inStock
-      } else if (sortField === "costPrice") {
-        comparison = a.costPrice - b.costPrice
-      } else if (sortField === "sellingPrice") {
-        comparison = a.sellingPrice - b.sellingPrice
-      } else if (sortField === "lastRestocked") {
-        comparison = new Date(a.lastRestocked).getTime() - new Date(b.lastRestocked).getTime()
+      } else if (sortField === "stock") {
+        comparison = a.stock - b.stock
+      } else if (sortField === "cost") {
+        comparison = Number.parseFloat(a.cost) - Number.parseFloat(b.cost)
+      } else if (sortField === "updatedAt") {
+        comparison = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
       }
 
       return sortDirection === "asc" ? comparison : -comparison
@@ -271,31 +189,23 @@ export default function InventoryPage() {
     }
   }
 
-  // Get status badge based on status
-  const getStatusBadge = (status: InventoryItem["status"]) => {
-    switch (status) {
-      case "in-stock":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">In Stock</Badge>
-      case "low-stock":
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Low Stock</Badge>
-      case "out-of-stock":
-        return <Badge variant="destructive">Out of Stock</Badge>
-      default:
-        return null
-    }
-  }
-
   // Calculate inventory statistics
   const totalItems = inventoryItems.length
-  const lowStockItems = inventoryItems.filter((item) => item.status === "low-stock").length
-  const outOfStockItems = inventoryItems.filter((item) => item.status === "out-of-stock").length
-  const totalValue = inventoryItems.reduce((total, item) => total + item.costPrice * item.inStock, 0)
+  const lowStockItems = inventoryItems.filter((item) => item.stock <= item.reorderPoint).length
+  const outOfStockItems = inventoryItems.filter((item) => item.stock === 0).length
+  const totalValue = inventoryItems.reduce((total, item) => total + Number.parseFloat(item.cost) * item.stock, 0)
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Inventory Management</h1>
         <div className="flex gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/inventory/suppliers">
+              <Building className="mr-2 h-4 w-4" />
+              Suppliers
+            </Link>
+          </Button>
           <Button variant="outline">
             <FileText className="mr-2 h-4 w-4" />
             Export
@@ -353,7 +263,7 @@ export default function InventoryPage() {
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             type="search"
-            placeholder="Search by name, SKU, or supplier..."
+            placeholder="Search by name or SKU..."
             className="pl-8 w-full"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -378,17 +288,17 @@ export default function InventoryPage() {
           </Select>
 
           <Select
-            value={selectedType || "all"}
-            onValueChange={(value) => setSelectedType(value === "all" ? null : value)}
+            value={selectedUom || "all"}
+            onValueChange={(value) => setSelectedUom(value === "all" ? null : value)}
           >
             <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="All Types" />
+              <SelectValue placeholder="All UOMs" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              {types.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
+              <SelectItem value="all">All UOMs</SelectItem>
+              {uoms.map((uom) => (
+                <SelectItem key={uom} value={uom}>
+                  {uom}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -403,11 +313,8 @@ export default function InventoryPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
-              {statuses.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status === "in-stock" ? "In Stock" : status === "low-stock" ? "Low Stock" : "Out of Stock"}
-                </SelectItem>
-              ))}
+              <SelectItem value="in-stock">In Stock</SelectItem>
+              <SelectItem value="low-stock">Low Stock</SelectItem>
             </SelectContent>
           </Select>
 
@@ -431,33 +338,70 @@ export default function InventoryPage() {
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
+            onDelete={(id) => {
+              setDeleteItemId(id)
+              setIsDeleteDialogOpen(true)
+            }}
+            isLoading={isLoading}
           />
         </TabsContent>
         <TabsContent value="low-stock" className="space-y-4">
           <InventoryTable
-            items={filteredItems.filter((item) => item.status === "low-stock")}
+            items={filteredItems.filter((item) => item.stock <= item.reorderPoint && item.stock > 0)}
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
+            onDelete={(id) => {
+              setDeleteItemId(id)
+              setIsDeleteDialogOpen(true)
+            }}
+            isLoading={isLoading}
           />
         </TabsContent>
         <TabsContent value="out-of-stock" className="space-y-4">
           <InventoryTable
-            items={filteredItems.filter((item) => item.status === "out-of-stock")}
+            items={filteredItems.filter((item) => item.stock === 0)}
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
+            onDelete={(id) => {
+              setDeleteItemId(id)
+              setIsDeleteDialogOpen(true)
+            }}
+            isLoading={isLoading}
           />
         </TabsContent>
         <TabsContent value="reorder" className="space-y-4">
           <InventoryTable
-            items={filteredItems.filter((item) => item.inStock <= item.minStock)}
+            items={filteredItems.filter((item) => item.stock <= item.reorderPoint)}
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
+            onDelete={(id) => {
+              setDeleteItemId(id)
+              setIsDeleteDialogOpen(true)
+            }}
+            isLoading={isLoading}
           />
         </TabsContent>
       </Tabs>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the inventory item.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteItem} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
@@ -467,9 +411,11 @@ interface InventoryTableProps {
   sortField: SortField
   sortDirection: SortDirection
   onSort: (field: SortField) => void
+  onDelete: (id: number) => void
+  isLoading: boolean
 }
 
-function InventoryTable({ items, sortField, sortDirection, onSort }: InventoryTableProps) {
+function InventoryTable({ items, sortField, sortDirection, onSort, onDelete, isLoading }: InventoryTableProps) {
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) {
       return <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -477,17 +423,24 @@ function InventoryTable({ items, sortField, sortDirection, onSort }: InventoryTa
     return sortDirection === "asc" ? <ArrowUp className="ml-2 h-4 w-4" /> : <ArrowDown className="ml-2 h-4 w-4" />
   }
 
-  const getStatusBadge = (status: InventoryItem["status"]) => {
-    switch (status) {
-      case "in-stock":
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">In Stock</Badge>
-      case "low-stock":
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Low Stock</Badge>
-      case "out-of-stock":
-        return <Badge variant="destructive">Out of Stock</Badge>
-      default:
-        return null
+  const getStatusBadge = (stock: number, reorderPoint: number) => {
+    if (stock === 0) {
+      return <Badge variant="destructive">Out of Stock</Badge>
+    } else if (stock <= reorderPoint) {
+      return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100">Low Stock</Badge>
+    } else {
+      return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">In Stock</Badge>
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="rounded-md border">
+        <div className="flex justify-center items-center p-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -495,23 +448,23 @@ function InventoryTable({ items, sortField, sortDirection, onSort }: InventoryTa
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Item</TableHead>
+            <TableHead className="cursor-pointer" onClick={() => onSort("name")}>
+              <div className="flex items-center">Item {getSortIcon("name")}</div>
+            </TableHead>
             <TableHead className="cursor-pointer" onClick={() => onSort("sku")}>
               <div className="flex items-center">SKU {getSortIcon("sku")}</div>
             </TableHead>
             <TableHead>Category</TableHead>
-            <TableHead className="cursor-pointer" onClick={() => onSort("inStock")}>
-              <div className="flex items-center">Stock {getSortIcon("inStock")}</div>
+            <TableHead>UOM</TableHead>
+            <TableHead className="cursor-pointer" onClick={() => onSort("stock")}>
+              <div className="flex items-center">Stock {getSortIcon("stock")}</div>
             </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => onSort("costPrice")}>
-              <div className="flex items-center">Cost {getSortIcon("costPrice")}</div>
-            </TableHead>
-            <TableHead className="cursor-pointer" onClick={() => onSort("sellingPrice")}>
-              <div className="flex items-center">Price {getSortIcon("sellingPrice")}</div>
+            <TableHead className="cursor-pointer" onClick={() => onSort("cost")}>
+              <div className="flex items-center">Cost {getSortIcon("cost")}</div>
             </TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="cursor-pointer" onClick={() => onSort("lastRestocked")}>
-              <div className="flex items-center">Last Restocked {getSortIcon("lastRestocked")}</div>
+            <TableHead className="cursor-pointer" onClick={() => onSort("updatedAt")}>
+              <div className="flex items-center">Last Updated {getSortIcon("updatedAt")}</div>
             </TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -529,35 +482,28 @@ function InventoryTable({ items, sortField, sortDirection, onSort }: InventoryTa
               <TableRow key={item.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-md overflow-hidden">
-                      <img
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
                     <div>
                       <div className="font-medium">{item.name}</div>
-                      <div className="text-xs text-muted-foreground">{item.id}</div>
+                      <div className="text-xs text-muted-foreground">ID: {item.id}</div>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>{item.sku}</TableCell>
                 <TableCell>{item.category}</TableCell>
+                <TableCell>{item.uom}</TableCell>
                 <TableCell>
                   <div className="flex items-center">
-                    <span className={`${item.inStock <= item.minStock ? "text-amber-600 font-medium" : ""}`}>
-                      {item.inStock}
+                    <span className={`${item.stock <= item.reorderPoint ? "text-amber-600 font-medium" : ""}`}>
+                      {item.stock}
                     </span>
-                    {item.inStock <= item.minStock && item.inStock > 0 && (
+                    {item.stock <= item.reorderPoint && item.stock > 0 && (
                       <AlertTriangle className="ml-1 h-4 w-4 text-amber-500" />
                     )}
                   </div>
                 </TableCell>
-                <TableCell>AED {item.costPrice.toFixed(2)}</TableCell>
-                <TableCell>AED {item.sellingPrice.toFixed(2)}</TableCell>
-                <TableCell>{getStatusBadge(item.status)}</TableCell>
-                <TableCell>{new Date(item.lastRestocked).toLocaleDateString()}</TableCell>
+                <TableCell>AED {Number.parseFloat(item.cost).toFixed(2)}</TableCell>
+                <TableCell>{getStatusBadge(item.stock, item.reorderPoint)}</TableCell>
+                <TableCell>{item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : " --- "}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -588,7 +534,7 @@ function InventoryTable({ items, sortField, sortDirection, onSort }: InventoryTa
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive">
+                      <DropdownMenuItem onClick={() => onDelete(item.id)} className="text-destructive">
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </DropdownMenuItem>

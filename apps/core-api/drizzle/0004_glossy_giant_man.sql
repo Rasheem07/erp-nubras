@@ -1,0 +1,1 @@
+ALTER TABLE "sales_schema"."sales_staff" ADD COLUMN "specialitites" jsonb;

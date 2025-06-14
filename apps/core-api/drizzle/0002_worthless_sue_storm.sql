@@ -1,0 +1,2 @@
+ALTER TABLE "sales_schema"."sales_orders" ADD COLUMN "quoteId" integer;--> statement-breakpoint
+ALTER TABLE "sales_schema"."sales_orders" ADD CONSTRAINT "sales_orders_quoteId_sales_quotations_id_fk" FOREIGN KEY ("quoteId") REFERENCES "sales_schema"."sales_quotations"("id") ON DELETE no action ON UPDATE no action;

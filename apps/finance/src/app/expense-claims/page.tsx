@@ -9,9 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Search, Eye, Pencil, List, Network, Trello, ArrowUpDown, Check, X } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TreeView, type TreeNode } from "@nubras/ui"
-import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
-import { formatCurrency } from "@nubras/utils"
+import { TreeView, type TreeNode } from "@/components/ui/tree-view"
+import { Kanban, type KanbanColumn, type KanbanItem } from "@/components/ui/kanban"
+import { formatCurrency } from "@/lib/utils"
 import { ExpenseClaimDrawer } from "@/components/expense-claim-drawer"
 
 // Sample data for expense claims

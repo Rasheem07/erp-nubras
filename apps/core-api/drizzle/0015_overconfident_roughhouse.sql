@@ -1,0 +1,2 @@
+ALTER TABLE "sales_schema"."sales_order_items" ALTER COLUMN "model_price" SET DEFAULT '0.00';--> statement-breakpoint
+ALTER TABLE "sales_schema"."sales_order_items" ALTER COLUMN "model_price" DROP NOT NULL;

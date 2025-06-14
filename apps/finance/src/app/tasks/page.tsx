@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
+import { Kanban, type KanbanColumn, type KanbanItem } from "@/components/ui/kanban"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"

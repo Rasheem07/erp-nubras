@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { AlertCircle, Check, Download, FileSpreadsheet, FileText, HelpCircle } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@nubras/ui"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Progress } from "@/components/ui/progress"
 import { financeService } from "@/lib/finance/finance-service"
 

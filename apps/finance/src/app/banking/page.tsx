@@ -3,8 +3,8 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -23,9 +23,9 @@ import {
   FileCheck,
 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TreeView, type TreeNode } from "@nubras/ui"
-import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
-import { formatCurrency } from "@nubras/utils"
+import { TreeView, type TreeNode } from "@/components/ui/tree-view"
+import { Kanban, type KanbanColumn, type KanbanItem } from "@/components/ui/kanban"
+import { formatCurrency } from "@/lib/utils"
 import { BankAccountDrawer } from "@/components/bank-account-drawer"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -375,15 +375,15 @@ export default function BankingPage() {
   }
 
   const handleCreate = () => {
-    router.push("/banking/create")
+    router.push("/finance/banking/create")
   }
 
   const handleBankReconciliation = () => {
-    router.push("/bank-reconciliation")
+    router.push("/finance/bank-reconciliation")
   }
 
   const handleImportStatement = () => {
-    router.push("/banking/import")
+    router.push("/finance/banking/import")
   }
 
   const handleTreeNodeSelect = (node: TreeNode) => {
@@ -419,7 +419,7 @@ export default function BankingPage() {
           <p className="text-muted-foreground">Manage your bank accounts and transactions</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={handleCreate} size="lg" className="flex gap-2">
+          <Button onClick={handleCreate} size="lg" className="gap-2">
             <Plus className="h-5 w-5" />
             <span>Add Bank Account</span>
           </Button>
@@ -428,20 +428,20 @@ export default function BankingPage() {
 
       {/* Quick Links Section */}
       <div className="flex flex-wrap gap-2 pb-2">
-        <Link href="/bank-reconciliation">
-          <Button variant="outline" size="sm" className="flex gap-2">
+        <Link href="/finance/bank-reconciliation">
+          <Button variant="outline" size="sm" className="gap-2">
             <FileCheck className="h-4 w-4" />
             <span>Bank Reconciliation</span>
           </Button>
         </Link>
-        <Link href="/bank-reconciliation/new">
-          <Button variant="outline" size="sm" className="flex gap-2">
+        <Link href="/finance/bank-reconciliation/new">
+          <Button variant="outline" size="sm" className="gap-2">
             <Plus className="h-4 w-4" />
             <span>New Reconciliation</span>
           </Button>
         </Link>
-        <Link href="/banking/import">
-          <Button variant="outline" size="sm" className="flex gap-2">
+        <Link href="/finance/banking/import">
+          <Button variant="outline" size="sm" className="gap-2">
             <Upload className="h-4 w-4" />
             <span>Import Statement</span>
           </Button>
@@ -466,7 +466,7 @@ export default function BankingPage() {
                   variant={viewMode === "table" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setViewMode("table")}
-                  className="flex gap-1"
+                  className="gap-1"
                 >
                   <List className="h-4 w-4" />
                   <span className="hidden sm:inline">Table</span>
@@ -475,7 +475,7 @@ export default function BankingPage() {
                   variant={viewMode === "tree" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setViewMode("tree")}
-                  className="flex gap-1"
+                  className="gap-1"
                 >
                   <Network className="h-4 w-4" />
                   <span className="hidden sm:inline">Tree</span>
@@ -484,7 +484,7 @@ export default function BankingPage() {
                   variant={viewMode === "kanban" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setViewMode("kanban")}
-                  className="flex gap-1"
+                  className="gap-1"
                 >
                   <Trello className="h-4 w-4" />
                   <span className="hidden sm:inline">Kanban</span>
@@ -600,7 +600,7 @@ export default function BankingPage() {
                       <div className="space-y-4 border rounded-lg p-6">
                         <div className="flex justify-between items-center">
                           <h3 className="text-xl font-semibold">{selectedTreeNode.meta.account.accountName}</h3>
-                          <Badge variant={selectedTreeNode.meta.account.status === "active" ? "default" : "secondary"}>
+                          <Badge variant={selectedTreeNode.meta.account.status === "Active" ? "default" : "secondary"}>
                             {selectedTreeNode.meta.account.status}
                           </Badge>
                         </div>
@@ -678,15 +678,15 @@ export default function BankingPage() {
                   <CardDescription>View and manage your bank transactions</CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex gap-1">
+                  <Button variant="outline" size="sm" className="gap-1">
                     <Upload className="h-4 w-4" />
                     <span>Import</span>
                   </Button>
-                  <Button variant="outline" size="sm" className="flex gap-1">
+                  <Button variant="outline" size="sm" className="gap-1">
                     <Download className="h-4 w-4" />
                     <span>Export</span>
                   </Button>
-                  <Button variant="outline" size="sm" className="flex gap-1">
+                  <Button variant="outline" size="sm" className="gap-1">
                     <RefreshCw className="h-4 w-4" />
                     <span>Refresh</span>
                   </Button>

@@ -55,6 +55,10 @@ export class AuthService {
   async signIn(signInDTO: SignInDTO) {
     const user = await this.userService.findOneByEmail(signInDTO.email);
 
+    if (!user) {
+      throw new NotFoundException('user with this email does not exist');
+    }
+    
     // const passCompare = await bcrypt.compare(signInDTO.password, user.password);
     // if (!passCompare) {
     //   throw new UnauthorizedException("Invalid credentials! Please try again.")
@@ -157,7 +161,9 @@ export class AuthService {
     );
 
     if (!isValid) {
-      throw new UnauthorizedException('Invalid 2FA code. Please check again and come back!');
+      throw new UnauthorizedException(
+        'Invalid 2FA code. Please check again and come back!',
+      );
     }
 
     const payload = {

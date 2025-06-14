@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ShoppingBag,
   Users,
@@ -14,13 +14,16 @@ import {
   Home,
   FileText,
   Tag,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { useSidebar } from "@/contexts/sidebar"
+  RefreshCw,
+  Shield,
+  Store,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/contexts/sidebar";
 
 export default function Sidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const routes = [
     {
@@ -40,6 +43,18 @@ export default function Sidebar() {
       icon: ShoppingBag,
       href: "/sales",
       active: pathname === "/sales",
+    },
+    {
+      label: "Quotations",
+      icon: FileText,
+      href: "/quotations",
+      active: pathname.startsWith("/quotations"),
+    },
+    {
+      label: "Returns",
+      icon: RefreshCw,
+      href: "/returns",
+      active: pathname === "/returns",
     },
     {
       label: "Tailoring",
@@ -77,12 +92,12 @@ export default function Sidebar() {
       href: "/reports",
       active: pathname === "/reports",
     },
-    {
-      label: "Invoices",
-      icon: FileText,
-      href: "/invoices",
-      active: pathname === "/invoices",
-    },
+    // {
+    //   label: "Invoices",
+    //   icon: FileText,
+    //   href: "/invoices",
+    //   active: pathname === "/invoices",
+    // },
     {
       label: "Promotions",
       icon: Tag,
@@ -96,17 +111,31 @@ export default function Sidebar() {
       active: pathname === "/calendar",
     },
     {
+      label: "Stores",
+      icon: Store,
+      href: "/stores",
+      active: pathname === "/stores",
+    },
+    {
+      label: "Policies",
+      icon: Shield,
+      href: "/settings/policies",
+      active: pathname === "/settings/policies",
+    },
+    {
       label: "Settings",
       icon: Settings,
       href: "/settings",
       active: pathname === "/settings",
     },
-  ]
+  ];
 
   const {isOpen} = useSidebar()
 
   return (
-    <div className={`${isOpen && "md:flex"} hidden h-full w-64 flex-col border-r bg-background`}>
+    <div
+      className={`${pathname.includes("register") || pathname.includes("close") || pathname.includes("reports") || pathname.includes("terminal") ||  !isOpen ? "hidden" : "flex"}  h-full w-64 flex-col border-r bg-background`}
+    >
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <Scissors className="h-6 w-6" />
@@ -121,7 +150,7 @@ export default function Sidebar() {
               href={route.href}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                route.active && "bg-muted text-primary",
+                route.active && "bg-muted text-primary"
               )}
             >
               <route.icon className="h-4 w-4" />
@@ -139,5 +168,5 @@ export default function Sidebar() {
         </Button>
       </div>
     </div>
-  )
+  );
 }

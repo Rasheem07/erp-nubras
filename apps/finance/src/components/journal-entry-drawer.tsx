@@ -2,8 +2,8 @@
 
 import React from "react"
 import { useState } from "react"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Save, X, Printer, Download, Calculator } from "lucide-react"
-import { formatCurrency } from "@nubras/utils"
+import { formatCurrency } from "@/lib/utils"
 
 // Sample accounts for dropdown
 const accounts = [
@@ -98,8 +98,8 @@ export function JournalEntryDrawer({ open, onClose, entry, mode: initialMode }: 
   }
 
   const calculateTotals = () => {
-    const debitTotal = formData.entries.reduce((sum: number, entry: any) => sum + Number(entry.debit), 0)
-    const creditTotal = formData.entries.reduce((sum: number, entry: any) => sum + Number(entry.credit), 0)
+    const debitTotal = formData.entries.reduce((sum: any, entry: any) => sum + Number(entry.debit), 0)
+    const creditTotal = formData.entries.reduce((sum: any, entry: any) => sum + Number(entry.credit), 0)
     return { debitTotal, creditTotal }
   }
 

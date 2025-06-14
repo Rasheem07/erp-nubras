@@ -12,10 +12,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from './modules/auth/users/user.module';
 import { RefreshTokenMiddleware } from './modules/auth/middlewares/refreshToken.middleware';
 import { TwoFactorAuthModule } from './modules/auth/twoFactorAuth/twoFactorAuth.module';
+import { AccountingModule } from './modules/accounting/accounting.module';
+import { SalesModule } from './modules/sales/sales.module';
+import { S3Module } from './shared/s3/s3.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true }),
     ThrottlerModule,
     DrizzleModule.forRootAsync({
       imports: [ConfigModule],
@@ -25,45 +28,20 @@ import { TwoFactorAuthModule } from './modules/auth/twoFactorAuth/twoFactorAuth.
         schema
       }),
     }),
-     JwtModule.registerAsync({
-          imports: [ConfigModule],
-          inject: [ConfigService],
-          useFactory: (cs: ConfigService) => ({
-            global: true,
-            secret: cs.get("JWT_SECRET"),
-            signOptions: { expiresIn: '10m' },
-          })
-        }),
-    // WinstonModule.forRoot({
-    //   level: process.env.LOG_LEVEL || 'info',
-    //   format: winston.format.combine(
-    //     winston.format.timestamp(),
-    //     winston.format.errors({ stack: true }),
-    //     winston.format.splat(),
-    //     winston.format.printf(({ timestamp, level, message, stack, ...meta }) => {
-    //       const base = `${timestamp} [${level}] ${message}`;
-    //       const extra = Object.keys(meta).length ? JSON.stringify(meta) : '';
-    //       return stack ? `${base} — ${stack}` : `${base} ${extra}`;
-    //     }),
-    //   ),
-    //   transports: [
-    //     new winston.transports.Console(),
-    //     new winston.transports.File({
-    //       filename: 'logs/error.log',
-    //       level: 'error',
-    //       maxsize: 5_000_000,  // 5MB
-    //       maxFiles: 5,
-    //     }),
-    //     new winston.transports.File({
-    //       filename: 'logs/combined.log',
-    //       maxsize: 10_000_000, // 10MB
-    //       maxFiles: 10,
-    //     }),
-    //   ],
-    // }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (cs: ConfigService) => ({
+        global: true,
+        secret: cs.get("JWT_SECRET"),
+        signOptions: { expiresIn: '10m' },
+      })
+    }),
     AuthModule,
     UserModule,
-    TwoFactorAuthModule
+    TwoFactorAuthModule,
+    AccountingModule,
+    SalesModule
   ],
   controllers: [AppController],
   providers: [AppService],

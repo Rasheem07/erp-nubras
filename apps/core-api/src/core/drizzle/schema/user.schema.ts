@@ -20,7 +20,6 @@ export const roles = pgTable('roles', {
 // Users
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
-  userId: varchar('user_id', { length: 14 }),
   email: varchar('email', {length: 32}).notNull().unique(),
   password: text('password').notNull(),
   roleId: serial('role_id').notNull().references(() => roles.id),

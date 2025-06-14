@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { format } from "date-fns"
 import { CheckIcon, FileTextIcon, UserIcon } from "lucide-react"
-import { Avatar, AvatarFallback } from "@nubras/ui"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 interface AccountReconciliationDrawerProps {
   open: boolean

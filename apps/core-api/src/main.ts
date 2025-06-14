@@ -1,16 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
-import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import {ExpressAdapter} from "@nestjs/platform-express"
 import * as cookieParser from 'cookie-parser';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(
     AppModule
   );
-
-  app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 
   app.enableCors(
     {
@@ -24,11 +22,7 @@ async function bootstrap() {
   app.use(cookieParser());
   app.use(helmet());
   app.useGlobalPipes(
-    new (require('@nestjs/common').ValidationPipe)({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
+    new ValidationPipe({transform: true})
   );
 
 

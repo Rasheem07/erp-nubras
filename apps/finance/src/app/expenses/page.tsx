@@ -13,7 +13,7 @@ import {
   FolderTree,
 } from "lucide-react";
 import {Button} from "@/components/ui/button"
-import {  KanbanColumn } from "@nubras/ui";
+import {  KanbanColumn } from "@/components/ui/kanban";
 import { Card, CardContent } from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {
@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { Kanban } from "@nubras/ui";
+import { Kanban } from "@/components/ui/kanban";
 import { ExpenseDrawer } from "@/components/expense-drawer";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";

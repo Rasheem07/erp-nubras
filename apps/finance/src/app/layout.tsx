@@ -1,9 +1,9 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { Sidebar, SidebarContent, SidebarProvider } from "@/components/ui/sidebar";
-import { FinanceSidebar } from "@/components/sidebar";
 import { FinanceHeader } from "@/components/header";
-import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
+import SidebarUI from "./sidebar";
+import Providers from "@/components/providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,23 +20,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SidebarProvider className="relative">
-          <ThemeProvider attribute="class" defaultTheme="light">
-            <div className="flex h-screen overflow-hidden w-full min-w-screen">
-              <Sidebar className="border-r relative">
-                <SidebarContent className="relative">
-                  <FinanceSidebar  />
-                </SidebarContent>
-              </Sidebar>
-              <div className="flex flex-1 flex-col overflow-hidden w-full">
-                <FinanceHeader />
-                <main className="flex-1 overflow-y-auto p-8 w-full">
-                  {children}
-                </main>
-              </div>
+        <Providers>
+          <div className="flex h-screen overflow-hidden w-full min-w-screen">
+            <SidebarUI />
+            <div className="flex flex-1 flex-col overflow-hidden w-full">
+              <FinanceHeader />
+              <main className="flex-1 overflow-y-auto p-8 w-full">
+                {children}
+              </main>
             </div>
-          </ThemeProvider>
-        </SidebarProvider>
+          </div>
+          <Toaster position="top-right" />
+        </Providers>
       </body>
     </html>
   );

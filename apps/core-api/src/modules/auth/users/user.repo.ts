@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq, and, sql, lt, desc } from 'drizzle-orm';
 import { DRIZZLE_CLIENT } from 'src/core/drizzle/drizzle.module';
-import { otps, refreshTokens, roles, users } from 'src/core/drizzle/schema';
+import { otps, refreshTokens, roles, users } from 'src/core/drizzle/schema/user.schema';
 
 // Roles Repository
 @Injectable()

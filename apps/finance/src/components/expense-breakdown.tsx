@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@nubras/ui"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer } from "recharts"
 
 const data = [
@@ -23,7 +23,7 @@ export function ExpenseBreakdown() {
         <CardDescription>Distribution of expenses by category</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer className="h-[350px]">
+        <div className="h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -40,11 +40,11 @@ export function ExpenseBreakdown() {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <ChartTooltip content={<ChartTooltipContent /> as unknown as string} />
+              <ChartTooltip content={<ChartTooltipContent /> } />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
-        </ChartContainer>
+        </div>
       </CardContent>
     </Card>
   )

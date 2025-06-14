@@ -1,36 +1,47 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
-import { ArrowLeft, DollarSign, Save, AlertCircle } from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { toast } from "@nubras/ui"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { ArrowLeft, DollarSign, Save, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 export default function CreateAccountPage() {
-  const router = useRouter()
+  const router = useRouter();
   const [formData, setFormData] = useState({
-    id: "",
+    accNo: null,
     name: "",
-    type: "",
-    subtype: "",
-    balance: 0,
-    status: "Active",
+    type: undefined,
+    subType: undefined,
+    balance: "0.00",
+    enabled: true,
     description: "",
-    created: new Date().toISOString().split("T")[0],
-  })
+  });
 
   // Bank account specific fields
-  const [isBankAccount, setIsBankAccount] = useState(false)
+  const [isBankAccount, setIsBankAccount] = useState(false);
   const [bankDetails, setBankDetails] = useState({
     bankName: "",
     accountNumber: "",
@@ -39,68 +50,81 @@ export default function CreateAccountPage() {
     iban: "",
     accountType: "checking",
     createBankAccount: true,
-  })
+  });
 
   useEffect(() => {
     // Check if this is a bank account based on subtype
-    setIsBankAccount(formData.subtype === "Bank Account")
-  }, [formData.subtype])
+    setIsBankAccount(formData.subType === "Bank Account");
+  }, [formData.subType]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleBankDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setBankDetails((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setBankDetails((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleBankSelectChange = (name: string, value: string) => {
-    setBankDetails((prev) => ({ ...prev, [name]: value }))
-  }
+    setBankDetails((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSwitchChange = (name: string, checked: boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: checked ? "Active" : "Inactive" }))
-  }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: checked ? true : false,
+    }));
+  };
 
   const handleBankSwitchChange = (name: string, checked: boolean) => {
-    setBankDetails((prev) => ({ ...prev, [name]: checked }))
-  }
+    setBankDetails((prev) => ({ ...prev, [name]: checked }));
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
     // Validate bank details if this is a bank account
     if (isBankAccount && bankDetails.createBankAccount) {
       if (!bankDetails.bankName || !bankDetails.accountNumber) {
-        toast({
-          title: "Missing Information",
-          description: "Please fill in all required bank details",
-          variant: "destructive",
-        })
-        return
+        toast.error("Missing required fields for bank", {
+          position: "top-right",
+        });
+        return;
       }
     }
+    const { accNo, ...rest } = formData;
 
-    // Here you would typically save the data to your backend
-    console.log("Form submitted:", formData)
-    console.log("Bank details:", bankDetails)
+    const payload = accNo != null ? { ...rest, accNo: Number(accNo) } : rest;
 
-    toast({
-      title: "Success",
-      description:
-        isBankAccount && bankDetails.createBankAccount
-          ? "Account and bank account created successfully"
-          : "Account created successfully",
-    })
+    const response = await fetch("http://localhost:5005/api/v1/accounts", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
-    router.push("/finance/accounts")
-  }
+    const json = await response.json();
+
+    if (!response.ok) {
+      toast.error(json.message, {
+        position: "top-right",
+      });
+      return;
+    }
+    toast.success("Account created successfully", {
+      position: "top-right",
+    });
+
+    router.push("/accounts");
+  };
 
   return (
     <div className="space-y-6">
@@ -109,28 +133,34 @@ export default function CreateAccountPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Create New Account</h2>
-          <p className="text-muted-foreground">Add a new account to your chart of accounts</p>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Create New Account
+          </h2>
+          <p className="text-muted-foreground">
+            Add a new account to your chart of accounts
+          </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Account Information</CardTitle>
-          <CardDescription>Enter the details for the new account</CardDescription>
+          <CardDescription>
+            Enter the details for the new account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="id">Account Number</Label>
+                <Label htmlFor="id">Account Number (auto incremented if left blank)</Label>
                 <Input
-                  id="id"
-                  name="id"
-                  value={formData.id}
+                  id="accNo"
+                  name="accNo"
+                  value={formData?.accNo || ""}
                   onChange={handleInputChange}
                   placeholder="e.g., 1000"
-                  required
+                  
                 />
               </div>
               <div className="space-y-2">
@@ -138,11 +168,13 @@ export default function CreateAccountPage() {
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="status"
-                    checked={formData.status === "Active"}
-                    onCheckedChange={(checked) => handleSwitchChange("status", checked)}
+                    checked={formData.enabled}
+                    onCheckedChange={(checked) =>
+                      handleSwitchChange("enabled", checked)
+                    }
                   />
                   <Label htmlFor="status" className="cursor-pointer">
-                    {formData.status}
+                    {formData.enabled ? "enabled" : "disabled"}
                   </Label>
                 </div>
               </div>
@@ -163,40 +195,54 @@ export default function CreateAccountPage() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="type">Account Type</Label>
-                <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)} required>
+                <Select
+                  value={formData.type}
+                  onValueChange={(value) => handleSelectChange("type", value)}
+                  required
+                >
                   <SelectTrigger id="type">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Asset">Asset</SelectItem>
-                    <SelectItem value="Liability">Liability</SelectItem>
-                    <SelectItem value="Equity">Equity</SelectItem>
-                    <SelectItem value="Revenue">Revenue</SelectItem>
-                    <SelectItem value="Expense">Expense</SelectItem>
+                    <SelectItem value="asset">Asset</SelectItem>
+                    <SelectItem value="liability">Liability</SelectItem>
+                    <SelectItem value="equity">Equity</SelectItem>
+                    <SelectItem value="revenue">Revenue</SelectItem>
+                    <SelectItem value="expense">Expense</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="subtype">Account Subtype</Label>
+                <Label htmlFor="subType">Account Subtype</Label>
                 <Select
-                  value={formData.subtype}
-                  onValueChange={(value) => handleSelectChange("subtype", value)}
+                  value={formData.subType}
+                  onValueChange={(value) =>
+                    handleSelectChange("subType", value)
+                  }
                   required
                 >
-                  <SelectTrigger id="subtype">
+                  <SelectTrigger id="subType">
                     <SelectValue placeholder="Select subtype" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Current Asset">Current Asset</SelectItem>
                     <SelectItem value="Fixed Asset">Fixed Asset</SelectItem>
                     <SelectItem value="Bank Account">Bank Account</SelectItem>
-                    <SelectItem value="Current Liability">Current Liability</SelectItem>
-                    <SelectItem value="Long-term Liability">Long-term Liability</SelectItem>
+                    <SelectItem value="Current Liability">
+                      Current Liability
+                    </SelectItem>
+                    <SelectItem value="Long-term Liability">
+                      Long-term Liability
+                    </SelectItem>
                     <SelectItem value="Equity">Equity</SelectItem>
-                    <SelectItem value="Operating Revenue">Operating Revenue</SelectItem>
+                    <SelectItem value="Operating Revenue">
+                      Operating Revenue
+                    </SelectItem>
                     <SelectItem value="Other Revenue">Other Revenue</SelectItem>
                     <SelectItem value="Cost of Sales">Cost of Sales</SelectItem>
-                    <SelectItem value="Operating Expense">Operating Expense</SelectItem>
+                    <SelectItem value="Operating Expense">
+                      Operating Expense
+                    </SelectItem>
                     <SelectItem value="Other Expense">Other Expense</SelectItem>
                   </SelectContent>
                 </Select>
@@ -239,18 +285,25 @@ export default function CreateAccountPage() {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-base font-medium">Create Bank Account</h3>
+                      <h3 className="text-base font-medium">
+                        Create Bank Account
+                      </h3>
                       <p className="text-sm text-muted-foreground">
-                        This will create a corresponding bank account in your banking module
+                        This will create a corresponding bank account in your
+                        banking module
                       </p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="createBankAccount"
                         checked={bankDetails.createBankAccount}
-                        onCheckedChange={(checked) => handleBankSwitchChange("createBankAccount", checked)}
+                        onCheckedChange={(checked) =>
+                          handleBankSwitchChange("createBankAccount", checked)
+                        }
                       />
-                      <span>{bankDetails.createBankAccount ? "Yes" : "No"}</span>
+                      <span>
+                        {bankDetails.createBankAccount ? "Yes" : "No"}
+                      </span>
                     </div>
                   </div>
 
@@ -260,7 +313,8 @@ export default function CreateAccountPage() {
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Bank Account Required</AlertTitle>
                         <AlertDescription>
-                          Since this is a bank account type, you must provide bank details.
+                          Since this is a bank account type, you must provide
+                          bank details.
                         </AlertDescription>
                       </Alert>
 
@@ -273,7 +327,9 @@ export default function CreateAccountPage() {
                             value={bankDetails.bankName}
                             onChange={handleBankDetailsChange}
                             placeholder="e.g., Emirates NBD"
-                            required={isBankAccount && bankDetails.createBankAccount}
+                            required={
+                              isBankAccount && bankDetails.createBankAccount
+                            }
                           />
                         </div>
                         <div className="space-y-2">
@@ -284,7 +340,9 @@ export default function CreateAccountPage() {
                             value={bankDetails.accountNumber}
                             onChange={handleBankDetailsChange}
                             placeholder="e.g., 1234567890"
-                            required={isBankAccount && bankDetails.createBankAccount}
+                            required={
+                              isBankAccount && bankDetails.createBankAccount
+                            }
                           />
                         </div>
                       </div>
@@ -304,7 +362,9 @@ export default function CreateAccountPage() {
                           <Label htmlFor="accountType">Account Type</Label>
                           <Select
                             value={bankDetails.accountType}
-                            onValueChange={(value) => handleBankSelectChange("accountType", value)}
+                            onValueChange={(value) =>
+                              handleBankSelectChange("accountType", value)
+                            }
                           >
                             <SelectTrigger id="accountType">
                               <SelectValue placeholder="Select type" />
@@ -312,7 +372,9 @@ export default function CreateAccountPage() {
                             <SelectContent>
                               <SelectItem value="checking">Checking</SelectItem>
                               <SelectItem value="savings">Savings</SelectItem>
-                              <SelectItem value="fixed-deposit">Fixed Deposit</SelectItem>
+                              <SelectItem value="fixed-deposit">
+                                Fixed Deposit
+                              </SelectItem>
                               <SelectItem value="current">Current</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
@@ -351,7 +413,11 @@ export default function CreateAccountPage() {
             <Separator />
 
             <div className="flex justify-end gap-4">
-              <Button type="button" variant="outline" onClick={() => router.back()}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.back()}
+              >
                 Cancel
               </Button>
               <Button type="submit">
@@ -363,5 +429,5 @@ export default function CreateAccountPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OtpsRepo, RefreshTokensRepo, UsersRepo } from './user.repo';
-import { otps, roles, users } from 'src/core/drizzle/schema';
+import { otps, roles, users } from 'src/core/drizzle/schema/user.schema';
 
 @Injectable()
 export class UserService {

@@ -1,19 +1,17 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { AccountDrawer } from "@/components/account-drawer"
 import { Plus, Search, Eye, Pencil, List, Network, Trello, FileCheck } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TreeView, type TreeNode } from "@nubras/ui"
-import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
+import { TreeView, type TreeNode } from "@/components/ui/tree-view"
+import { Kanban, type KanbanColumn, type KanbanItem } from "@/components/ui/kanban"
 
 // Sample data for chart of accounts
 const accounts = [
@@ -367,11 +365,11 @@ export default function ChartOfAccountsPage() {
   }
 
   const handleCreate = () => {
-    router.push("/accounts/create")
+    router.push("/finance/accounts/create")
   }
 
   const handleAccountReconciliation = () => {
-    router.push("/account-reconciliation")
+    router.push("/finance/account-reconciliation")
   }
 
   const handleTreeNodeSelect = (node: TreeNode) => {
@@ -410,11 +408,11 @@ export default function ChartOfAccountsPage() {
           <p className="text-muted-foreground">Manage your company's financial accounts</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={handleCreate} size="lg" className="flex gap-2">
+          <Button onClick={handleCreate} size="lg" className="gap-2">
             <Plus className="h-5 w-5" />
             <span>Add Account</span>
           </Button>
-          <Button onClick={handleAccountReconciliation} variant="outline" size="lg" className="flex gap-2">
+          <Button onClick={handleAccountReconciliation} variant="outline" size="lg" className="gap-2">
             <FileCheck className="h-5 w-5" />
             <span>Account Reconciliation</span>
           </Button>
@@ -432,7 +430,7 @@ export default function ChartOfAccountsPage() {
               variant={viewMode === "table" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("table")}
-              className="flex gap-1"
+              className="gap-1"
             >
               <List className="h-4 w-4" />
               <span className="hidden sm:inline">Table</span>
@@ -441,7 +439,7 @@ export default function ChartOfAccountsPage() {
               variant={viewMode === "tree" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("tree")}
-              className="flex gap-1"
+              className="gap-1"
             >
               <Network className="h-4 w-4" />
               <span className="hidden sm:inline">Tree</span>
@@ -450,7 +448,7 @@ export default function ChartOfAccountsPage() {
               variant={viewMode === "kanban" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("kanban")}
-              className="flex gap-1"
+              className="gap-1"
             >
               <Trello className="h-4 w-4" />
               <span className="hidden sm:inline">Kanban</span>
@@ -571,7 +569,7 @@ export default function ChartOfAccountsPage() {
                         <div className="text-sm font-medium text-muted-foreground">Sub-accounts</div>
                         <div className="mt-2">
                           <ul className="space-y-1">
-                            {selectedTreeNode.children.map((child) => (
+                            {selectedTreeNode.children.map((child: any) => (
                               <li key={child.id} className="flex items-center justify-between">
                                 <span>{child.name}</span>
                                 {child.meta?.balance !== undefined && (

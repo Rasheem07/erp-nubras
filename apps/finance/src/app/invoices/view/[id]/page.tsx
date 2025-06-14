@@ -5,10 +5,10 @@ import { useParams, useRouter } from "next/navigation"
 import {Button} from "@/components/ui/button"
 import { ArrowLeft, Printer } from "lucide-react"
 // import { InvoiceDownloadButton } from "@/components/invoice-download-button"
-import type { Invoice } from "@nubras/utils/dist/types"
+
 
 // Sample data for invoices - in a real app, you would fetch this from your API
-const invoicesData: Invoice[] = [
+const invoicesData: any[] = [
   {
     id: "1",
     invoiceNumber: "INV-001",
@@ -63,7 +63,7 @@ const invoicesData: Invoice[] = [
 export default function InvoiceViewPage() {
   const params = useParams()
   const router = useRouter()
-  const [invoice, setInvoice] = useState<Invoice | null>(null)
+  const [invoice, setInvoice] = useState<any | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

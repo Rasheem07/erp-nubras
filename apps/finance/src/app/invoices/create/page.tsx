@@ -1,258 +1,503 @@
-"use client"
+"use client";
 
-import type React from "react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  useForm,
+  Controller,
+  useFieldArray,
+  type Resolver,
+} from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  Plus,
+  Save,
+  Trash,
+  Eye,
+  ChevronDownIcon,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Switch } from "@/components/ui/switch";
+import { GetRequest } from "../../../lib/requestHelper";
+import { toast } from "sonner";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+//
+// 1) Zod schema matching your DB models
+//
+const invoiceItemSchema = z.object({
+  itemId: z.string().nonempty(),
+  quantity: z.number().min(1),
+  total: z.number().min(0),
+});
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Plus, Save, Trash, Eye } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
+const taxSchema = z.object({
+  taxName: z.string().nonempty(),
+  rate: z.number().min(0),
+  applyOn: z.enum(["Net Total", "Previous Row Amount", "Previous Row Total"]),
+  enabled: z.boolean(),
+});
+
+const invoiceSchema = z.object({
+  type: z.enum(["sales", "purchase"]),
+  customerId: z.string().optional().nullable(),
+  supplierId: z.string().optional().nullable(),
+  date: z.string().refine((d) => !isNaN(Date.parse(d)), "Invalid date"),
+  dueDate: z.string().refine((d) => !isNaN(Date.parse(d)), "Invalid date"),
+  deliveryDate: z
+    .string()
+    .optional()
+    .nullable()
+    .refine((d) => !d || !isNaN(Date.parse(d)), "Invalid date"),
+  shippingMethod: z.string().max(25).optional().nullable(),
+  notes: z.string().optional().nullable(),
+  items: z.array(invoiceItemSchema).min(1),
+  taxes: z.array(taxSchema).min(1),
+});
+
+type InvoiceForm = z.infer<typeof invoiceSchema>;
 
 export default function CreateInvoicePage() {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState("items")
-  const [formData, setFormData] = useState({
-    invoiceNumber: "",
-    customer: "",
-    customerEmail: "",
-    customerAddress: "",
-    issueDate: new Date().toISOString().split("T")[0],
-    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    status: "draft",
-    items: [{ description: "", quantity: 1, price: 0, taxCategory: "" }],
-    taxes: [{ name: "VAT", rate: 5, applyOn: "Net Total", enabled: true }],
-    notes: "",
-    termsAndConditions: "Standard terms and conditions apply.",
-  })
+  const router = useRouter();
 
-  const calculateSubtotal = () => {
-    return formData.items.reduce((sum, item) => sum + item.quantity * item.price, 0)
-  }
-
-  const calculateTaxes = () => {
-    let taxes = 0
-    formData.taxes.forEach((tax) => {
-      if (tax.enabled) {
-        taxes += calculateSubtotal() * (tax.rate / 100)
+  const { data: customersList = [], isLoading: customerLoading } = useQuery({
+    queryKey: ["customers"],
+    queryFn: async () => {
+      try {
+        return await GetRequest("customers", "Failed to fetch customers");
+      } catch (error: any) {
+        toast.error(error.message);
       }
-    })
-    return taxes
-  }
+    },
+  });
 
-  const calculateTotal = () => {
-    return calculateSubtotal() + calculateTaxes()
-  }
+  const { data: suppliersList = [], isLoading: suppliersLoading } = useQuery({
+    queryKey: ["suppliers"],
+    queryFn: async () => {
+      try {
+        return await GetRequest("suppliers", "Failed to fetch suppliers");
+      } catch (error: any) {
+        toast.error(error.message);
+      }
+    },
+  });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const [searchTerm, setSearchTerm] = useState("");
+  const [custPopoverOpen, setCustPopoverOpen] = useState(false);
+  const [supPopoverOpen, setSupPopoverOpen] = useState(false);
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const resolver = zodResolver(invoiceSchema) as Resolver<InvoiceForm>
+  const {
+    register,
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<InvoiceForm>({
+    resolver,
+    defaultValues: {
+      type: "sales",
+      customerId: "",
+      supplierId: "",
+      date: new Date().toISOString().split("T")[0],
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0],
+      deliveryDate: "",
+      shippingMethod: "",
+      notes: "",
+      items: [{ itemId: "", quantity: 1, total: 0 }],
+      taxes: [{ taxName: "VAT", rate: 5, applyOn: "Net Total", enabled: true }],
+    },
+  });
 
-  const handleItemChange = (index: number, field: string, value: string | number) => {
-    const newItems = [...formData.items]
-    newItems[index] = { ...newItems[index], [field]: value }
-    setFormData((prev) => ({ ...prev, items: newItems }))
-  }
+  // Items field array
+  const {
+    fields: itemFields,
+    append: appendItem,
+    remove: removeItem,
+  } = useFieldArray({ control, name: "items" });
 
-  const handleAddItem = () => {
-    setFormData((prev) => ({
-      ...prev,
-      items: [...prev.items, { description: "", quantity: 1, price: 0, taxCategory: "" }],
-    }))
-  }
+  // Taxes field array
+  const {
+    fields: taxFields,
+    append: appendTax,
+    remove: removeTax,
+  } = useFieldArray({ control, name: "taxes" });
 
-  const handleRemoveItem = (index: number) => {
-    if (formData.items.length === 1) return
-    const newItems = [...formData.items]
-    newItems.splice(index, 1)
-    setFormData((prev) => ({ ...prev, items: newItems }))
-  }
+  // Helpers
+  const subtotal = () => watch("items").reduce((sum, i) => sum + i.total, 0);
 
-  const handleTaxChange = (index: number, field: string, value: any) => {
-    const newTaxes = [...formData.taxes]
-    newTaxes[index] = { ...newTaxes[index], [field]: value }
-    setFormData((prev) => ({ ...prev, taxes: newTaxes }))
-  }
+  const taxAmount = () =>
+    watch("taxes")
+      .filter((t) => t.enabled)
+      .reduce((sum, t) => sum + subtotal() * (t.rate / 100), 0);
 
-  const handleAddTax = () => {
-    setFormData((prev) => ({
-      ...prev,
-      taxes: [...prev.taxes, { name: "", rate: 0, applyOn: "Net Total", enabled: true }],
-    }))
-  }
+  const total = () => subtotal() + taxAmount();
 
-  const handleRemoveTax = (index: number) => {
-    if (formData.taxes.length === 1) return
-    const newTaxes = [...formData.taxes]
-    newTaxes.splice(index, 1)
-    setFormData((prev) => ({ ...prev, taxes: newTaxes }))
-  }
+  // React-Query mutation
+  const createInvoice = async (payload: any) => {
+    const res = await fetch("http://localhost:5005/api/v1/invoices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error("Failed to create invoice");
+    return res.json();
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Here you would typically save the data to your backend
-    console.log("Form submitted:", {
-      ...formData,
-      subtotal: calculateSubtotal(),
-      taxAmount: calculateTaxes(),
-      total: calculateTotal(),
-    })
-    router.push("/invoices")
-  }
+  const mutation = useMutation({
+    mutationFn: createInvoice,
+    onSuccess: () => router.push("/invoices"),
+  });
 
-  // Update the handlePreview function to ensure we're storing the complete invoice data
-  const handlePreview = () => {
-    // In a real application, you would save the draft and redirect to preview
-    // For now, we'll just store the data in localStorage for the preview page to use
-    const invoiceData = {
-      ...formData,
-      subtotal: calculateSubtotal(),
-      taxAmount: calculateTaxes(),
-      total: calculateTotal(),
-      // Ensure these arrays are defined
-      items: formData.items || [],
-      taxes: formData.taxes || [],
-    }
-
-    localStorage.setItem("invoicePreview", JSON.stringify(invoiceData))
-    router.push("/invoices/preview")
-  }
+  // Submit
+  const onSubmit = (data: InvoiceForm) => {
+    const payload = {
+      ...data,
+      customerId: data.type === "sales" ? Number(data.customerId) : null,
+      supplierId: data.type === "purchase" ? Number(data.supplierId) : null,
+      netAmount: subtotal(),
+      taxAmount: taxAmount(),
+      totalAmount: total(),
+      items: data.items.map((i) => ({
+        itemId: Number(i.itemId),
+        quantity: i.quantity,
+        total: i.total,
+      })),
+      taxes: data.taxes.map((t) => ({
+        taxName: t.taxName,
+        rate: t.rate,
+        applyOn: t.applyOn,
+        enabled: t.enabled,
+      })),
+    };
+    mutation.mutate(payload);
+  };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="outline" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h2 className="text-3xl font-bold tracking-tight">Create New Invoice</h2>
-            <p className="text-muted-foreground">Create a new sales invoice</p>
+            <h2 className="text-3xl font-bold tracking-tight">
+              Create New Invoice
+            </h2>
+            <p className="text-muted-foreground">
+              Create a new sales or purchase invoice
+            </p>
           </div>
         </div>
-        <Button onClick={handlePreview} className="gap-2">
-          <Eye className="h-4 w-4" />
-          Preview Invoice
+        <Button onClick={handleSubmit(onSubmit)} className="gap-2">
+          <Save className="h-4 w-4" />
+          Save Invoice
         </Button>
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Tabs defaultValue="items" className="w-full" onValueChange={() => {}}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="items">Items</TabsTrigger>
             <TabsTrigger value="taxes">Taxes & Charges</TabsTrigger>
             <TabsTrigger value="summary">Summary</TabsTrigger>
           </TabsList>
 
-          <Card className="mt-4 border-t-0 rounded-tl-none rounded-tr-none">
+          {/* Items & Meta */}
+          <Card className="mt-4 rounded-tl-none rounded-tr-none">
             <CardContent className="pt-6">
               <TabsContent value="items" className="space-y-6 mt-0">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
                   <div className="space-y-2">
-                    <Label htmlFor="invoiceNumber">Invoice Number</Label>
-                    <Input
-                      id="invoiceNumber"
-                      name="invoiceNumber"
-                      value={formData.invoiceNumber}
-                      onChange={handleInputChange}
-                      placeholder="e.g., INV-001"
-                      required
+                    <Label htmlFor="type">Type</Label>
+                    <Controller
+                      control={control}
+                      name="type"
+                      render={({ field }) => (
+                        <Select {...field} onValueChange={field.onChange}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Sales or Purchase" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="sales">Sales</SelectItem>
+                            <SelectItem value="purchase">Purchase</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="customer">Customer</Label>
-                    <Input
-                      id="customer"
-                      name="customer"
-                      value={formData.customer}
-                      onChange={handleInputChange}
-                      placeholder="Customer name"
-                      required
-                    />
-                  </div>
+                  {watch("type") === "sales" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="customerId">Customer</Label>
+                      <Controller
+                        control={control}
+                        name="customerId"
+                        render={({ field }) => {
+                          // filter by name or contactPerson
+                          const filtered = customersList.filter(
+                            (c: any) =>
+                              c.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              (c.contact || "")
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              (c.email || "")
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase())
+                          );
+
+                          return (
+                            <Popover
+                              open={custPopoverOpen}
+                              onOpenChange={setCustPopoverOpen}
+                            >
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-between"
+                                  onClick={() => {
+                                    setSearchTerm(""); // reset search each open
+                                    setCustPopoverOpen(true);
+                                  }}
+                                >
+                                  {field.value
+                                    ? customersList.find(
+                                        (x: any) => x.id === Number(field.value)
+                                      )?.name
+                                    : "Select customer…"}
+                                  <ChevronDownIcon className="ml-2 h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+
+                              <PopoverContent className="w-[500px] border-gray-300">
+                                <Input
+                                  placeholder="Search by name or contact"
+                                  value={searchTerm}
+                                  onChange={(e) =>
+                                    setSearchTerm(e.target.value)
+                                  }
+                                  className="mb-2"
+                                />
+
+                                <div className="h-[200px] overflow-auto">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead>ID</TableHead>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>Contact</TableHead>
+                                        <TableHead>Email</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {filtered.slice(0, 10).map((c: any) => (
+                                        <TableRow
+                                          key={c.id}
+                                          className="cursor-pointer hover:bg-muted/50"
+                                          onClick={() => {
+                                            field.onChange(String(c.id));
+                                            setCustPopoverOpen(false);
+                                          }}
+                                        >
+                                          <TableCell className="text-nowrap">
+                                            {c.id}
+                                          </TableCell>
+                                          <TableCell className="text-nowrap">
+                                            {c.name}
+                                          </TableCell>
+                                          <TableCell className="text-nowrap">
+                                            {c.contact}
+                                          </TableCell>
+                                          <TableCell className="text-nowrap">
+                                            {c.email}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          );
+                        }}
+                      />
+                    </div>
+                  )}
+                  {watch("type") === "purchase" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="supplierId">Customer</Label>
+                      <Controller
+                        control={control}
+                        name="supplierId"
+                        render={({ field }) => {
+                          // filter by name or contactPerson
+                          const filtered = suppliersList.filter(
+                            (c: any) =>
+                              c.name
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              (c.contact || "")
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase()) ||
+                              (c.email || "")
+                                .toLowerCase()
+                                .includes(searchTerm.toLowerCase())
+                          );
+
+                          return (
+                            <Popover
+                              open={supPopoverOpen}
+                              onOpenChange={setSupPopoverOpen}
+                            >
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className="w-full justify-between"
+                                  onClick={() => {
+                                    setSearchTerm(""); // reset search each open
+                                    setSupPopoverOpen(true);
+                                  }}
+                                >
+                                  {field.value
+                                    ? suppliersList.find(
+                                        (x: any) => x.id === Number(field.value)
+                                      )?.name
+                                    : "Select supplier..."}
+                                  <ChevronDownIcon className="ml-2 h-4 w-4" />
+                                </Button>
+                              </PopoverTrigger>
+
+                              <PopoverContent className="w-[500px] border-gray-300">
+                                <Input
+                                  placeholder="Search by name or contact"
+                                  value={searchTerm}
+                                  onChange={(e) =>
+                                    setSearchTerm(e.target.value)
+                                  }
+                                  className="mb-2"
+                                />
+
+                                <div className="h-[200px] overflow-auto">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead>ID</TableHead>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>Contact</TableHead>
+                                        <TableHead>Email</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {filtered.slice(0, 10).map((c: any) => (
+                                        <TableRow
+                                          key={c.id}
+                                          className="cursor-pointer hover:bg-muted/50"
+                                          onClick={() => {
+                                            field.onChange(String(c.id));
+                                            setCustPopoverOpen(false);
+                                          }}
+                                        >
+                                          <TableCell className="text-nowrap">
+                                            {c.id}
+                                          </TableCell>
+                                          <TableCell className="text-nowrap">
+                                            {c.name}
+                                          </TableCell>
+                                          <TableCell className="text-nowrap">
+                                            {c.contact}
+                                          </TableCell>
+                                          <TableCell className="text-nowrap">
+                                            {c.email}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
+                          );
+                        }}
+                      />
+                    </div>
+                  )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
-                      <SelectTrigger id="status">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="draft">Draft</SelectItem>
-                        <SelectItem value="sent">Sent</SelectItem>
-                        <SelectItem value="paid">Paid</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="date">Issue Date</Label>
+                    <Input type="date" {...register("date")} />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="customerEmail">Customer Email</Label>
-                    <Input
-                      id="customerEmail"
-                      name="customerEmail"
-                      type="email"
-                      value={formData.customerEmail}
-                      onChange={handleInputChange}
-                      placeholder="customer@example.com"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="issueDate">Issue Date</Label>
-                    <Input
-                      id="issueDate"
-                      name="issueDate"
-                      type="date"
-                      value={formData.issueDate}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="dueDate">Due Date</Label>
+                    <Input type="date" {...register("dueDate")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="deliveryDate">Delivery Date</Label>
+                    <Input type="date" {...register("deliveryDate")} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="shippingMethod">Shipping Method</Label>
                     <Input
-                      id="dueDate"
-                      name="dueDate"
-                      type="date"
-                      value={formData.dueDate}
-                      onChange={handleInputChange}
-                      required
+                      {...register("shippingMethod")}
+                      placeholder="e.g., Air, Ground"
                     />
                   </div>
-
-                  <div className="space-y-2 md:col-span-3">
-                    <Label htmlFor="customerAddress">Customer Address</Label>
-                    <Textarea
-                      id="customerAddress"
-                      name="customerAddress"
-                      value={formData.customerAddress}
-                      onChange={handleInputChange}
-                      placeholder="Customer's billing address"
-                      rows={2}
-                    />
+                  <div className="md:col-span-4 space-y-2">
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea {...register("notes")} rows={2} />
                   </div>
                 </div>
 
                 <Separator />
 
+                {/* Line Items */}
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium">Invoice Items</h3>
-                    <Button type="button" variant="outline" size="sm" onClick={handleAddItem}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        appendItem({
+                          itemId: "",
+                          quantity: 1,
+                          total: 0,
+                        })
+                      }
+                    >
                       <Plus className="mr-2 h-4 w-4" />
                       Add Item
                     </Button>
@@ -262,77 +507,45 @@ export default function CreateInvoicePage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[40%]">Description</TableHead>
-                          <TableHead>Quantity</TableHead>
-                          <TableHead>Price (AED)</TableHead>
-                          <TableHead>Tax Category</TableHead>
-                          <TableHead className="text-right">Amount</TableHead>
+                          <TableHead>Item ID</TableHead>
+                          <TableHead>Qty</TableHead>
+                          <TableHead>Total</TableHead>
                           <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {formData.items.map((item, index) => (
-                          <TableRow key={index}>
+                        {itemFields.map((field, idx) => (
+                          <TableRow key={field.id}>
                             <TableCell>
                               <Input
-                                value={item.description}
-                                onChange={(e) => handleItemChange(index, "description", e.target.value)}
-                                placeholder="Item description"
-                                required
+                                type="number"
+                                {...register(`items.${idx}.itemId` as const)}
                               />
                             </TableCell>
                             <TableCell>
                               <Input
                                 type="number"
-                                min="1"
-                                value={item.quantity}
-                                onChange={(e) =>
-                                  handleItemChange(index, "quantity", Number.parseInt(e.target.value) || 0)
-                                }
-                                required
+                                {...register(`items.${idx}.quantity` as const, {
+                                  valueAsNumber: true,
+                                })}
                               />
                             </TableCell>
                             <TableCell>
                               <Input
                                 type="number"
-                                min="0"
                                 step="0.01"
-                                value={item.price}
-                                onChange={(e) =>
-                                  handleItemChange(index, "price", Number.parseFloat(e.target.value) || 0)
-                                }
-                                required
+                                {...register(`items.${idx}.total` as const, {
+                                  valueAsNumber: true,
+                                })}
                               />
-                            </TableCell>
-                            <TableCell>
-                              <Select
-                                value={item.taxCategory}
-                                onValueChange={(value) => handleItemChange(index, "taxCategory", value)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select tax" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="standard">Standard Rate</SelectItem>
-                                  <SelectItem value="reduced">Reduced Rate</SelectItem>
-                                  <SelectItem value="zero">Zero Rated</SelectItem>
-                                  <SelectItem value="exempt">Exempt</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                              {(item.quantity * item.price).toLocaleString("en-US", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
                             </TableCell>
                             <TableCell>
                               <Button
                                 type="button"
                                 variant="ghost"
                                 size="icon"
-                                onClick={() => handleRemoveItem(index)}
-                                disabled={formData.items.length === 1}
+                                onClick={() => removeItem(idx)}
+                                disabled={itemFields.length === 1}
                               >
                                 <Trash className="h-4 w-4" />
                               </Button>
@@ -345,201 +558,129 @@ export default function CreateInvoicePage() {
                 </div>
               </TabsContent>
 
+              {/* Taxes & Charges */}
               <TabsContent value="taxes" className="space-y-6 mt-0">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Tax Summary</h3>
-                    <div className="rounded-lg border p-4">
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Subtotal</span>
-                          <span className="font-medium">
-                            AED{" "}
-                            {calculateSubtotal().toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                        {formData.taxes
-                          .filter((tax) => tax.enabled)
-                          .map((tax, index) => (
-                            <div key={index} className="flex justify-between">
-                              <span className="text-muted-foreground">
-                                {tax.name} ({tax.rate}%)
-                              </span>
-                              <span className="font-medium">
-                                AED{" "}
-                                {((calculateSubtotal() * tax.rate) / 100).toLocaleString("en-US", {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                })}
-                              </span>
-                            </div>
-                          ))}
-                        <Separator />
-                        <div className="flex justify-between">
-                          <span className="font-medium">Total</span>
-                          <span className="text-xl font-bold">
-                            AED{" "}
-                            {calculateTotal().toLocaleString("en-US", {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium">Tax Configuration</h3>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        appendTax({
+                          taxName: "",
+                          rate: 0,
+                          applyOn: "Net Total",
+                          enabled: true,
+                        })
+                      }
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Add Tax
+                    </Button>
                   </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium">Tax Configuration</h3>
-                      <Button type="button" variant="outline" size="sm" onClick={handleAddTax}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Tax
-                      </Button>
-                    </div>
-
-                    <div className="overflow-x-auto rounded-md border">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Tax Name</TableHead>
-                            <TableHead>Rate (%)</TableHead>
-                            <TableHead>Apply On</TableHead>
-                            <TableHead>Enabled</TableHead>
-                            <TableHead className="w-[50px]"></TableHead>
+                  <div className="overflow-x-auto rounded-md border">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Rate %</TableHead>
+                          <TableHead>Apply On</TableHead>
+                          <TableHead>Enabled</TableHead>
+                          <TableHead className="w-[50px]"></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {taxFields.map((field, idx) => (
+                          <TableRow key={field.id}>
+                            <TableCell>
+                              <Input
+                                {...register(`taxes.${idx}.taxName` as const)}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                {...register(`taxes.${idx}.rate` as const, {
+                                  valueAsNumber: true,
+                                })}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Controller
+                                control={control}
+                                name={`taxes.${idx}.applyOn` as const}
+                                render={({ field }) => (
+                                  <Select
+                                    {...field}
+                                    onValueChange={field.onChange}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Apply On" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Net Total">
+                                        Net Total
+                                      </SelectItem>
+                                      <SelectItem value="Previous Row Amount">
+                                        Previous Row Amount
+                                      </SelectItem>
+                                      <SelectItem value="Previous Row Total">
+                                        Previous Row Total
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Controller
+                                control={control}
+                                name={`taxes.${idx}.enabled` as const}
+                                render={({ field }) => (
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                )}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => removeTax(idx)}
+                                disabled={taxFields.length === 1}
+                              >
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
                           </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {formData.taxes.map((tax, index) => (
-                            <TableRow key={index}>
-                              <TableCell>
-                                <Input
-                                  value={tax.name}
-                                  onChange={(e) => handleTaxChange(index, "name", e.target.value)}
-                                  placeholder="Tax name"
-                                  required
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  step="0.01"
-                                  value={tax.rate}
-                                  onChange={(e) =>
-                                    handleTaxChange(index, "rate", Number.parseFloat(e.target.value) || 0)
-                                  }
-                                  required
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Select
-                                  value={tax.applyOn}
-                                  onValueChange={(value) => handleTaxChange(index, "applyOn", value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Apply on" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Net Total">Net Total</SelectItem>
-                                    <SelectItem value="Previous Row Amount">Previous Row Amount</SelectItem>
-                                    <SelectItem value="Previous Row Total">Previous Row Total</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </TableCell>
-                              <TableCell>
-                                <Switch
-                                  checked={tax.enabled}
-                                  onCheckedChange={(checked) => handleTaxChange(index, "enabled", checked)}
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => handleRemoveTax(index)}
-                                  disabled={formData.taxes.length === 1}
-                                >
-                                  <Trash className="h-4 w-4" />
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 </div>
               </TabsContent>
 
+              {/* Summary */}
               <TabsContent value="summary" className="space-y-6 mt-0">
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Invoice Summary</h3>
-                    <div className="space-y-4 rounded-lg border p-4">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Subtotal</span>
-                        <span className="font-medium">
-                          AED{" "}
-                          {calculateSubtotal().toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Tax</span>
-                        <span className="font-medium">
-                          AED{" "}
-                          {calculateTaxes().toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                      <Separator />
-                      <div className="flex justify-between">
-                        <span className="font-medium">Total</span>
-                        <span className="text-xl font-bold">
-                          AED{" "}
-                          {calculateTotal().toLocaleString("en-US", {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
-                        </span>
-                      </div>
-                    </div>
+                <div className="space-y-4 rounded-lg border p-4">
+                  <div className="flex justify-between">
+                    <span>Subtotal</span>
+                    <span>AED {subtotal().toFixed(2)}</span>
                   </div>
-
-                  <div>
-                    <h3 className="text-lg font-medium mb-4">Additional Information</h3>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="notes">Notes</Label>
-                        <Textarea
-                          id="notes"
-                          name="notes"
-                          value={formData.notes}
-                          onChange={handleInputChange}
-                          placeholder="Additional notes or payment instructions"
-                          rows={3}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="termsAndConditions">Terms and Conditions</Label>
-                        <Textarea
-                          id="termsAndConditions"
-                          name="termsAndConditions"
-                          value={formData.termsAndConditions}
-                          onChange={handleInputChange}
-                          rows={3}
-                        />
-                      </div>
-                    </div>
+                  <div className="flex justify-between">
+                    <span>Tax</span>
+                    <span>AED {taxAmount().toFixed(2)}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span>AED {total().toFixed(2)}</span>
                   </div>
                 </div>
               </TabsContent>
@@ -547,20 +688,25 @@ export default function CreateInvoicePage() {
           </Card>
         </Tabs>
 
+        {/* Footer */}
         <div className="mt-6 flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={() => router.back()}>
             Cancel
           </Button>
-          <Button type="submit">
+          <Button
+            type="submit"
+            className="disabled:opacity-75"
+            disabled={mutation.isPending}
+          >
             <Save className="mr-2 h-4 w-4" />
             Save Invoice
           </Button>
-          <Button type="button" onClick={handlePreview}>
+          <Button onClick={handleSubmit(onSubmit)}>
             <Eye className="mr-2 h-4 w-4" />
             Preview
           </Button>
         </div>
       </form>
     </div>
-  )
+  );
 }

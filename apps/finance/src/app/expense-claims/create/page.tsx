@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { DollarSign, Plus, Save, Trash, ArrowLeft } from "lucide-react"
-import { formatCurrency } from "@nubras/utils"
+import { formatCurrency } from "@/lib/utils"
 
 export default function CreateExpenseClaim() {
   const router = useRouter()

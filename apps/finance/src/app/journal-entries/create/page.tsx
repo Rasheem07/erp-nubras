@@ -1,104 +1,145 @@
-"use client"
+"use client";
 
-import type React from "react"
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ArrowLeft, Plus, Save, Trash, Calculator } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+import { type Resolver } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
+import { Account } from "@/app/accounts/accounts.type";
+import { FetchAllAccounts } from "@/services/accounts";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Separator } from "@/components/ui/separator"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ArrowLeft, Plus, Save, Trash, Calculator } from "lucide-react"
-import { formatCurrency } from "@nubras/utils"
+// Schemas
+const journalEntryLineSchema = z.object({
+  accountId: z.string().nonempty(),
+  debit: z.string().refine((v) => !isNaN(parseFloat(v)), {
+    message: "debit must be a valid decimal string",
+  }),
+  credit: z.string().refine((v) => !isNaN(parseFloat(v)), {
+    message: "credit must be a valid decimal string",
+  }),
+});
 
-// Sample accounts for dropdown
-const accounts = [
-  { id: "1000", name: "1000 - Cash" },
-  { id: "1100", name: "1100 - Accounts Receivable" },
-  { id: "1200", name: "1200 - Inventory" },
-  { id: "1500", name: "1500 - Equipment" },
-  { id: "2000", name: "2000 - Accounts Payable" },
-  { id: "2100", name: "2100 - Loans Payable" },
-  { id: "3000", name: "3000 - Owner's Equity" },
-  { id: "4000", name: "4000 - Sales Revenue" },
-  { id: "5000", name: "5000 - Cost of Goods Sold" },
-  { id: "6000", name: "6000 - Rent Expense" },
-  { id: "6100", name: "6100 - Utilities Expense" },
-  { id: "6200", name: "6200 - Salaries Expense" },
-  { id: "2200", name: "2200 - Tax Payable" },
-]
+const createJournalEntrySchema = z.object({
+  date: z.string().optional(),
+  refType: z.string().optional(),
+  refNo: z.preprocess((val) => Number(val), z.number().int().optional()),
+  description: z.string().optional(),
+  notes: z.string().optional(),
+  status: z.string().default("draft"),
+  journalEntryLines: z.array(journalEntryLineSchema).min(2),
+});
+
+type FormValues = z.infer<typeof createJournalEntrySchema>;
 
 export default function CreateJournalEntryPage() {
-  const router = useRouter()
-  const [formData, setFormData] = useState({
-    date: new Date().toISOString().split("T")[0],
-    ref: "",
-    refType: "",
-    description: "",
-    entries: [
-      { account: "", debit: 0, credit: 0 },
-      { account: "", debit: 0, credit: 0 },
-    ],
-    notes: "",
-  })
+  const router = useRouter();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  const resolver = zodResolver(
+    createJournalEntrySchema
+  ) as Resolver<FormValues>;
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<FormValues>({
+    resolver,
+    defaultValues: {
+      date: new Date().toISOString().split("T")[0],
+      refType: "",
+      refNo: undefined,
+      description: "",
+      notes: "",
+      status: "draft",
+      journalEntryLines: [
+        { accountId: "", debit: "0.00", credit: "0.00" },
+        { accountId: "", debit: "0.00", credit: "0.00" },
+      ],
+    },
+  });
 
-  const handleEntryChange = (index: number, field: string, value: string | number) => {
-    const newEntries = [...formData.entries]
-    newEntries[index] = { ...newEntries[index], [field]: value }
+  const [accountListStatus, setAccountListStatus] = useState<boolean>(true);
 
-    // If debit is entered, clear credit and vice versa
-    if (field === "debit" && Number(value) > 0) {
-      newEntries[index].credit = 0
-    } else if (field === "credit" && Number(value) > 0) {
-      newEntries[index].debit = 0
-    }
+  const { data: accounts, isLoading } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: async () => {
+      try {
+        return await FetchAllAccounts();
+      } catch (error) {
+        setAccountListStatus(false);
+      }
+    },
+  });
 
-    setFormData((prev) => ({ ...prev, entries: newEntries }))
-  }
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "journalEntryLines",
+  });
 
-  const handleAddEntry = () => {
-    setFormData((prev) => ({
-      ...prev,
-      entries: [...prev.entries, { account: "", debit: 0, credit: 0 }],
-    }))
-  }
+  const onSubmit = async (data: FormValues) => {
+    const payload = {
+      refType: data.refType,
+      refNo: data.refNo,
+      description: data.description,
+      notes: data.notes,
+      status: data.status,
+      journalEntryLines: data.journalEntryLines.map((line) => ({
+        accountId: Number(line.accountId),
+        debit: line.debit,
+        credit: line.credit,
+      })),
+    };
+    const res = await fetch("http://localhost:5005/api/v1/journal-entries", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (res.ok) router.push("/journal-entries");
+    else console.error(await res.json());
+  };
 
-  const handleRemoveEntry = (index: number) => {
-    if (formData.entries.length <= 2) return // Minimum 2 entries required
-    const newEntries = [...formData.entries]
-    newEntries.splice(index, 1)
-    setFormData((prev) => ({ ...prev, entries: newEntries }))
-  }
-
-  const calculateTotals = () => {
-    const debitTotal = formData.entries.reduce((sum, entry) => sum + Number(entry.debit), 0)
-    const creditTotal = formData.entries.reduce((sum, entry) => sum + Number(entry.credit), 0)
-    return { debitTotal, creditTotal }
-  }
-
-  const { debitTotal, creditTotal } = calculateTotals()
-  const isBalanced = debitTotal === creditTotal && debitTotal > 0
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!isBalanced) {
-      alert("Journal entry must be balanced before saving.")
-      return
-    }
-
-    // Here you would typically save the data to your backend
-    console.log("Form submitted:", formData)
-    router.push("/journal-entries")
-  }
+  const entries = watch("journalEntryLines");
+  const debitTotal = entries.reduce(
+    (sum, e) => sum + parseFloat(e.debit || "0"),
+    0
+  );
+  const creditTotal = entries.reduce(
+    (sum, e) => sum + parseFloat(e.credit || "0"),
+    0
+  );
+  const isBalanced = debitTotal === creditTotal && debitTotal > 0;
 
   return (
     <div className="space-y-6">
@@ -107,57 +148,45 @@ export default function CreateJournalEntryPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Create Journal Entry</h2>
-          <p className="text-muted-foreground">Create a new general ledger journal entry</p>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Create Journal Entry
+          </h2>
+          <p className="text-muted-foreground">
+            Create a new general ledger journal entry
+          </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Card>
           <CardHeader>
             <CardTitle>Journal Entry Information</CardTitle>
-            <CardDescription>Enter the details for the new journal entry</CardDescription>
+            <CardDescription>
+              Enter the details for the new journal entry
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-
               <div className="space-y-2">
                 <Label htmlFor="date">Date</Label>
-                <Input id="date" name="date" type="date" value={formData.date} onChange={handleInputChange} required />
+                <Input {...register("date")} type="date" />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="ref">Reference no</Label>
+                <Label htmlFor="refNo">Reference no</Label>
                 <Input
-                  id="ref"
-                  name="ref"
-                  value={formData.ref}
-                  onChange={handleInputChange}
-                  placeholder="e.g., INV-001, PO-123"
+                  {...register("refNo", { valueAsNumber: true })}
+                  placeholder="e.g., INV-001"
                 />
               </div>
-
               <div className="space-y-2">
                 <Label htmlFor="refType">Reference type</Label>
-                <Input
-                  id="refType"
-                  name="refType"
-                  value={formData.refType}
-                  onChange={handleInputChange}
-                  placeholder="e.g., Invoice, Expense etc"
-                  required
-                />
+                <Input {...register("refType")} placeholder="e.g., Invoice" />
               </div>
-
               <div className="space-y-2 md:col-span-3">
                 <Label htmlFor="description">Description</Label>
                 <Input
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  placeholder="Enter a description for this journal entry"
-                  required
+                  {...register("description")}
+                  placeholder="Enter description"
                 />
               </div>
             </div>
@@ -168,10 +197,19 @@ export default function CreateJournalEntryPage() {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">Journal Entry Lines</h3>
                 <div className="flex items-center gap-2">
-                  <div className={`text-sm ${isBalanced ? "text-green-600" : "text-red-600"}`}>
+                  <div
+                    className={`text-sm ${isBalanced ? "text-green-600" : "text-red-600"}`}
+                  >
                     {isBalanced ? "Balanced" : "Unbalanced"}
                   </div>
-                  <Button type="button" variant="outline" size="sm" onClick={handleAddEntry}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      append({ accountId: "", debit: "0.00", credit: "0.00" })
+                    }
+                  >
                     <Plus className="mr-2 h-4 w-4" />
                     Add Line
                   </Button>
@@ -185,50 +223,58 @@ export default function CreateJournalEntryPage() {
                       <TableHead className="w-[40%]">Account</TableHead>
                       <TableHead className="text-right">Debit (AED)</TableHead>
                       <TableHead className="text-right">Credit (AED)</TableHead>
-                      <TableHead className="w-[50px]"></TableHead>
+                      <TableHead className="w-[50px]" />
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {formData.entries.map((entry, index) => (
-                      <TableRow key={index}>
+                    {fields.map((field, index) => (
+                      <TableRow key={field.id}>
                         <TableCell>
-                          <Select
-                            value={entry.account}
-                            onValueChange={(value) => handleEntryChange(index, "account", value)}
-                            required
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select account" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {accounts.map((account) => (
-                                <SelectItem key={account.id} value={account.id}>
-                                  {account.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            value={entry.debit || ""}
-                            onChange={(e) => handleEntryChange(index, "debit", Number(e.target.value))}
-                            className="text-right"
-                            placeholder="0.00"
+                          <Controller
+                            control={control}
+                            name={`journalEntryLines.${index}.accountId`}
+                            render={({ field }) => (
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select account" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {accountListStatus !== false ? (
+                                    accounts &&
+                                    accounts!.length > 0 &&
+                                    accounts!.map((acc) => (
+                                      <SelectItem
+                                        key={acc.accNo}
+                                        value={String(acc.accNo)}
+                                      >
+                                        {acc.accNo + " - " + acc.name}
+                                      </SelectItem>
+                                    ))
+                                  ) : (
+                                    <p>error loading account options</p>
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            )}
                           />
                         </TableCell>
                         <TableCell>
                           <Input
+                            {...register(`journalEntryLines.${index}.debit`)}
                             type="number"
-                            min="0"
                             step="0.01"
-                            value={entry.credit || ""}
-                            onChange={(e) => handleEntryChange(index, "credit", Number(e.target.value))}
                             className="text-right"
-                            placeholder="0.00"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            {...register(`journalEntryLines.${index}.credit`)}
+                            type="number"
+                            step="0.01"
+                            className="text-right"
                           />
                         </TableCell>
                         <TableCell>
@@ -236,8 +282,8 @@ export default function CreateJournalEntryPage() {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleRemoveEntry(index)}
-                            disabled={formData.entries.length <= 2}
+                            onClick={() => remove(index)}
+                            disabled={fields.length <= 2}
                           >
                             <Trash className="h-4 w-4" />
                           </Button>
@@ -246,9 +292,13 @@ export default function CreateJournalEntryPage() {
                     ))}
                     <TableRow className="bg-muted/50">
                       <TableCell className="font-bold">Total</TableCell>
-                      <TableCell className="text-right font-bold">{formatCurrency(debitTotal)}</TableCell>
-                      <TableCell className="text-right font-bold">{formatCurrency(creditTotal)}</TableCell>
-                      <TableCell></TableCell>
+                      <TableCell className="text-right font-bold">
+                        {formatCurrency(debitTotal)}
+                      </TableCell>
+                      <TableCell className="text-right font-bold">
+                        {formatCurrency(creditTotal)}
+                      </TableCell>
+                      <TableCell />
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -260,38 +310,30 @@ export default function CreateJournalEntryPage() {
             <div className="space-y-2">
               <Label htmlFor="notes">Notes</Label>
               <Textarea
-                id="notes"
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                placeholder="Enter any additional notes or context for this journal entry"
+                {...register("notes")}
                 rows={3}
+                placeholder="Additional notes"
               />
             </div>
 
             <div className="mt-6 flex justify-end gap-4">
-              <Button type="button" variant="outline" onClick={() => router.back()}>
+              <Button variant="outline" onClick={() => router.back()}>
                 Cancel
               </Button>
               <Button
-                type="button"
                 variant="outline"
-                onClick={() => {
-                  // Auto-balance functionality could be implemented here
-                  alert("Auto-balance feature would be implemented here")
-                }}
+                type="button"
+                onClick={() => alert("Auto-balance feature placeholder")}
               >
-                <Calculator className="mr-2 h-4 w-4" />
-                Auto-Balance
+                <Calculator className="mr-2 h-4 w-4" /> Auto-Balance
               </Button>
               <Button type="submit" disabled={!isBalanced}>
-                <Save className="mr-2 h-4 w-4" />
-                Save Journal Entry
+                <Save className="mr-2 h-4 w-4" /> Save Journal Entry
               </Button>
             </div>
           </CardContent>
         </Card>
       </form>
     </div>
-  )
+  );
 }

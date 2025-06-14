@@ -33,7 +33,7 @@ import { cn } from "@/lib/utils"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandList } from "@/components/ui/command"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Switch } from "@/components/ui/switch"
-import { toast } from "@nubras/ui"
+import { toast } from "sonner"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -207,29 +207,17 @@ export default function CreatePaymentPage() {
     e.preventDefault()
 
     if (requiresBankAccount && !selectedBankAccount) {
-      toast({
-        title: "Error",
-        description: "Please select a bank account",
-        variant: "destructive",
-      })
+      toast.error("Please select a bank account")
       return
     }
 
     if (payeeType === "vendor" && !selectedVendor) {
-      toast({
-        title: "Error",
-        description: "Please select a vendor/customer",
-        variant: "destructive",
-      })
+      toast("Please select a vendor/customer")
       return
     }
 
     if (payeeType === "employee" && !selectedEmployee) {
-      toast({
-        title: "Error",
-        description: "Please select an employee",
-        variant: "destructive",
-      })
+      toast.error("Please select an employee")
       return
     }
 
@@ -238,10 +226,7 @@ export default function CreatePaymentPage() {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    toast({
-      title: "Success",
-      description: "Payment has been created successfully",
-    })
+    toast.success("Payment has been created successfully")
 
     router.push("/finance/payments")
   }

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { TreeView, type TreeNode } from "@nubras/ui"
+import { TreeView, type TreeNode } from "@/components/ui/tree-view"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   CreditCard,

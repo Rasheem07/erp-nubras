@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { KanbanColumn, TreeNode } from "@nubras/ui";
+import { KanbanColumn } from "@/components/ui/kanban";
+import {TreeNode} from "@/components/ui/tree-view"
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@nubras/ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
   CardContent,
@@ -45,8 +46,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TreeView } from "@nubras/ui";
-import { Kanban } from "@nubras/ui";
+import { TreeView } from "@/components/ui/tree-view";
+import { Kanban } from "@/components/ui/kanban";
 import { Button } from "@/components/ui/button";
 
 // Mock data for bank reconciliation

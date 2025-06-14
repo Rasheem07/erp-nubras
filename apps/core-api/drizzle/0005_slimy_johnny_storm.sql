@@ -1,0 +1,1 @@
+ALTER TABLE "sales_schema"."sales_staff" RENAME COLUMN "specialitites" TO "specialties";

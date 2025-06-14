@@ -2,8 +2,8 @@
 
 import React from "react"
 import { useState } from "react"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Save, X, Printer, Download, Plus, Trash, Check, DollarSign } from "lucide-react"
-import { formatCurrency } from "@nubras/utils"
+import { formatCurrency } from "@/lib/utils"
 
 interface ExpenseClaimDrawerProps {
   open: boolean
@@ -399,7 +399,7 @@ export function ExpenseClaimDrawer({ open, onClose, claim, mode: initialMode }: 
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {formData.items.map((item: any, index: number) => (
+                      {formData.items.map((item: any, index: any) => (
                         <TableRow key={index}>
                           <TableCell>
                             <Select

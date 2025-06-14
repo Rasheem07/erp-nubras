@@ -2,8 +2,8 @@
 
 import React from "react"
 import { useState } from "react"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet"
@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Save, X, Printer, Download, DollarSign } from "lucide-react"
-import { formatCurrency } from "@nubras/utils"
+import { formatCurrency } from "@/lib/utils"
 
 interface BankAccountDrawerProps {
   open: boolean

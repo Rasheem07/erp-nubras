@@ -4,16 +4,16 @@ import React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { InvoiceDrawer } from "@/components/invoice-drawer"
 import { Plus, Search, Eye, Pencil, List, Network, Trello, Printer } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { TreeView, type TreeNode } from "@nubras/ui"
-import { Kanban, type KanbanColumn, type KanbanItem } from "@nubras/ui"
+import { TreeView, type TreeNode } from "@/components/ui/tree-view"
+import { Kanban, type KanbanColumn, type KanbanItem } from "@/components/ui/kanban"
 
 // Sample data for invoices
 const invoices = [
@@ -333,7 +333,7 @@ export default function InvoicesPage() {
   }
 
   const handleCreate = () => {
-    router.push("/invoices/create")
+    router.push("/finance/invoices/create")
   }
 
   const handleTreeNodeSelect = (node: TreeNode) => {
@@ -364,7 +364,7 @@ export default function InvoicesPage() {
   // Update the handlePrintInvoice function in the invoices page
   const handlePrintInvoice = (invoice: any) => {
     // Navigate to the invoice view page
-    router.push(`/invoices/view/${invoice.id}`)
+    router.push(`/finance/invoices/view/${invoice.id}`)
   }
 
   return (

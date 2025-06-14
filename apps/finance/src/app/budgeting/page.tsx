@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import {Button} from "@/components/ui/button"
-import {  KanbanColumn } from "@nubras/ui";
+import {  KanbanColumn } from "@/components/ui/kanban";
 import {Input} from "@/components/ui/input";
 import {
   Select,
@@ -33,8 +33,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Kanban } from "@nubras/ui";
-import { TreeView } from "@nubras/ui";
+import { Kanban } from "@/components/ui/kanban";
+import { TreeView } from "@/components/ui/tree-view";
 import { BudgetDrawer } from "@/components/budget-drawer";
 import {
   Search,

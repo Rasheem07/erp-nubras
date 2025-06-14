@@ -1,7 +1,7 @@
 "use client"
 
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@nubras/ui"
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 
 const data = [
   { month: "Jan", income: 4000, expenses: 2400 },
@@ -32,7 +32,7 @@ export function FinanceOverviewChart() {
         <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
           <XAxis dataKey="month" tick={{ fontSize: 14 }} />
           <YAxis tick={{ fontSize: 14 }} />
-          <ChartTooltip content={<ChartTooltipContent /> as unknown as string} />
+          <ChartTooltip content={<ChartTooltipContent /> } />
           <Line
             type="monotone"
             dataKey="income"
